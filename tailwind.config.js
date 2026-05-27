@@ -4,15 +4,28 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+
   theme: {
     extend: {
-      colors :{
+      colors: {
+
         primary: {
-          default : ''
-        }
-      }
+          DEFAULT: '#FD7401',
+          hover: '#994700', 
+          bg:'#EFF4FF'
+        },
+        // text '#994700',
+        secondary: {
+          DEFAULT: '#1E2772',
+          light: '#F4F5FA',
+        },
+
+        third: '#555555',
+
+        neutralLight: '#C2C2C2',
+      },
     },
   },
+
   plugins: [],
 }
-
