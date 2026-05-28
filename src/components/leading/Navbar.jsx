@@ -1,4 +1,5 @@
 import 'react';
+import Button from '../ui/Button';
 
 export default function Navbar() {
   return (
@@ -30,12 +31,10 @@ export default function Navbar() {
           <button className="text-sm font-semibold text-secondary hover:text-primary transition-colors">
             Se connecter
           </button>
-          <button className="text-sm font-semibold bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all">
-            S'inscrire
-          </button>
-          <button className="hidden lg:block text-sm font-semibold border border-secondary text-secondary px-5 py-2.5 rounded-xl hover:bg-secondary hover:text-white transition-all">
+          <Button variant='primary' >S'inscrire</Button>
+          <Button variant='ghost' className="hidden lg:block border border-primary">
             Publier un Appel d'Offres
-          </button>
+          </Button>
         </div>
       </div>
     </nav>

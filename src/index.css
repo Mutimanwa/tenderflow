@@ -3,6 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply antialiased text-slate-800 bg-white;
-  font-family: 'Inter', sans-serif;
+  @apply antialiased text-third bg-white font-sans;
 }

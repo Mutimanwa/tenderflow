@@ -11,8 +11,7 @@ export default {
 
         primary: {
           DEFAULT: '#FD7401',
-          hover: '#994700', 
-          bg:'#EFF4FF'
+          hover: '#994700',
         },
         // text '#994700',
         secondary: {
@@ -23,6 +22,10 @@ export default {
         third: '#555555',
 
         neutralLight: '#C2C2C2',
+      },
+      // Configuration de la police
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
     },
   },

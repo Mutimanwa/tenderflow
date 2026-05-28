@@ -4,25 +4,35 @@ import Input from '../../components/ui/Input';
 export default function Login() {
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Connexion</h1>
-        <p className="mt-3 text-sm text-slate-600">Entrez vos identifiants pour accéder à votre espace TenderFlow.</p>
+      <div className='text-center'>
+        <h4 className="text-3xl font-bold text-slate-900">Bon retour sur TenderFlow</h4>
+        <p className="mt-3 text-sm text-slate-600">Simplifiez la gestion des appels d’offres et soumissions.</p>
       </div>
       <form className="space-y-6">
         <Input label="Email" type="email" placeholder="votre@exemple.com" />
         <Input label="Mot de passe" type="password" placeholder="••••••••" />
         <div className="flex items-center justify-between text-sm text-slate-600">
           <label className="inline-flex items-center gap-2">
-            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" />
-            Se souvenir de moi
           </label>
-          <a href="/auth/forgot-password" className="font-semibold text-primary hover:text-secondary">Mot de passe oublié ?</a>
+          <a href="/auth/forgot-password" className="font-semibold text-secondary " style={{textDecoration: 'underline'}}>Mot de passe oublié ?</a>
         </div>
-        <Button className="w-full">Se connecter</Button>
+        
+          <Button className="w-96 ms-20">Se connecter</Button>
+         
+
+
+
       </form>
-      <p className="text-sm text-slate-600">
-        Pas encore de compte ? <a href="/auth/signup" className="font-semibold text-primary hover:text-secondary">Créer un compte</a>
-      </p>
+       {/* le ---ou-- */}
+          <div className="w-96 ms-20 relative text-center mt-8">
+            <span className="bg-white px-2 -mt-3 text-sm text-slate-500 absolute left-1/2 transform -translate-x-1/2">ou</span>
+            <div className="border-t border-slate-300 mt-4"></div>
+          </div>
+          {/* le bouton de creation de compte  */}
+          <Button variant='ghost' className="w-96 ms-20 mt-8 border border-primary text-primary hover:bg-primary/10">
+            <a href="/auth/signup">Créer un compte</a>
+          </Button>
+
     </div>
   );
 }

@@ -1,52 +1,54 @@
-import Navbar from '../../components/leading/Navbar';
-import Button from '../../components/ui/Button';
+// import Navbar from '../../components/leading/Navbar';
+// import Button from '../../components/ui/Button';
 
-export default function LandingPage() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <section className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
-          <div className="space-y-6">
-            <span className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">Plateforme de gestion des appels d'offres</span>
-            <h1 className="text-5xl font-black tracking-tight text-slate-900">Simplifiez la publication, la gestion et la réponse aux appels d'offres.</h1>
-            <p className="max-w-2xl text-lg leading-8 text-slate-600">
-              TenderFlow centralise les offres, les soumissions et les documents pour les acheteurs et fournisseurs. Gagnez en visibilité et en efficacité grâce à des interfaces claires et des workflows optimisés.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button className="shadow-xl">Découvrir</Button>
-              <Button variant="secondary">Essayer gratuitement</Button>
-            </div>
-          </div>
-          <div className="rounded-[2rem] bg-white p-10 shadow-2xl shadow-slate-900/5">
-            <div className="grid gap-6">
-              <div className="rounded-3xl border border-slate-200 p-8 bg-slate-50">
-                <h2 className="text-xl font-semibold text-slate-900">Offres recommandées</h2>
-                <p className="mt-3 text-sm text-slate-600">Accédez rapidement aux projets ouverts correspondant à votre profil.</p>
-              </div>
-              <div className="grid gap-4 rounded-3xl bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <span>Offre infrastructure</span>
-                  <span className="font-semibold text-slate-900">20 j</span>
-                </div>
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <span>Offre digitalisation</span>
-                  <span className="font-semibold text-slate-900">42 j</span>
-                </div>
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <span>Offre construction</span>
-                  <span className="font-semibold text-slate-900">11 j</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  );
-}import React, { useState } from 'react';
+// export default function LandingPage() {
+//   return (
+//     <div className="min-h-screen bg-slate-50">
+//       <Navbar />
+//       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+//         <section className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
+//           <div className="space-y-6">
+//             <span className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">Plateforme de gestion des appels d'offres</span>
+//             <h1 className="text-5xl font-black tracking-tight text-slate-900">Simplifiez la publication, la gestion et la réponse aux appels d'offres.</h1>
+//             <p className="max-w-2xl text-lg leading-8 text-slate-600">
+//               TenderFlow centralise les offres, les soumissions et les documents pour les acheteurs et fournisseurs. Gagnez en visibilité et en efficacité grâce à des interfaces claires et des workflows optimisés.
+//             </p>
+//             <div className="flex flex-wrap gap-4">
+//               <Button className="shadow-xl">Découvrir</Button>
+//               <Button variant="secondary">Essayer gratuitement</Button>
+//             </div>
+//           </div>
+//           <div className="rounded-[2rem] bg-white p-10 shadow-2xl shadow-slate-900/5">
+//             <div className="grid gap-6">
+//               <div className="rounded-3xl border border-slate-200 p-8 bg-slate-50">
+//                 <h2 className="text-xl font-semibold text-slate-900">Offres recommandées</h2>
+//                 <p className="mt-3 text-sm text-slate-600">Accédez rapidement aux projets ouverts correspondant à votre profil.</p>
+//               </div>
+//               <div className="grid gap-4 rounded-3xl bg-white p-6 shadow-sm">
+//                 <div className="flex items-center justify-between text-sm text-slate-600">
+//                   <span>Offre infrastructure</span>
+//                   <span className="font-semibold text-slate-900">20 j</span>
+//                 </div>
+//                 <div className="flex items-center justify-between text-sm text-slate-600">
+//                   <span>Offre digitalisation</span>
+//                   <span className="font-semibold text-slate-900">42 j</span>
+//                 </div>
+//                 <div className="flex items-center justify-between text-sm text-slate-600">
+//                   <span>Offre construction</span>
+//                   <span className="font-semibold text-slate-900">11 j</span>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </section>
+//       </main>
+//     </div>
+//   );
+// }
+import { useState } from 'react';
 import { ArrowRight, CheckCircle2,CheckCircle, Star, Shield, Users, Layers, Zap } from 'lucide-react';
-import {heroImage , logo} from '../../assets';
+import {heroImage } from '../../assets';
+import Navbar from '../../components/leading/Navbar';
 
 export default function LandingPage() {
   // État pour le formulaire de simulation rapide
@@ -70,33 +72,10 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-third font-sans selection:bg-primary/20">
       
       {/* 1. NAVBAR */}
-      <nav className="border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1 h-8 items-end">
-              <span className="w-1.5 h-6 bg-secondary rounded-full"></span>
-              <span className="w-1.5 h-8 bg-primary rounded-full"></span>
-              <span className="w-1.5 h-5 bg-secondary rounded-full"></span>
-              <span className="w-1.5 h-7 bg-primary rounded-full"></span>
-            </div>
-            <span className="text-2xl font-bold text-secondary tracking-tight">Tender<span className="text-primary">Flow</span></span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 font-medium text-sm text-third">
-            <a href="#" className="text-primary">Accueil</a>
-            <a href="#" className="hover:text-secondary transition-colors">Comment ça marche</a>
-            <a href="#" className="hover:text-secondary transition-colors">Tarifs</a>
-            <a href="#" className="hover:text-secondary transition-colors">Contactez-nous</a>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="text-sm font-semibold text-secondary hover:text-primary transition-colors">Se connecter</button>
-            <button className="text-sm font-semibold bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all">S'inscrire</button>
-            <button className="hidden lg:block text-sm font-semibold border border-secondary text-secondary px-5 py-2.5 rounded-xl hover:bg-secondary hover:text-white transition-all">Publier un Appel d'Offres</button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gray">
+      <section className=" relative pt-16 pb-20 lg:pt-24 lg:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
@@ -244,7 +223,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-secondary mb-6">Ce que nos clients disent de TenderFlow</h2>
             <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 relative">
               <span className="text-6xl text-primary/20 absolute top-2 left-4 font-serif">“</span>
-              <p className="text-sm text-third leading-relaxed relative z-10 mb-6 italic">
+              <p className="text-sm text-third leading-relaxed font-semibold relative z-10 mb-6 italic">
                 "Grâce à TenderFlow, nous avons réduit notre cycle de décision de 6 semaines à seulement 12 jours. La qualité des prestataires sur la plateforme est exceptionnelle et l'outil de comparaison nous a fait gagner un temps précieux."
               </p>
               <div className="flex items-center gap-3">
@@ -259,7 +238,7 @@ export default function LandingPage() {
           <div className="lg:col-span-7 grid grid-cols-2 gap-4">
             {[{v:'98%', t:'Satisfaction Client'}, {v:'+12k', t:'Offres Publiées'}, {v:'24h', t:'Temps de Réponse Moyen'}, {v:'-30%', t:'Coûts de Gestion'}].map((stat, i) => (
               <div key={i} className="bg-blue-50/50 p-8 rounded-2xl border border-blue-50 text-center">
-                <span className="block text-3xl sm:text-4xl font-extrabold text-secondary mb-1">{stat.v}</span>
+                <span className="block text-3xl sm:text-4xl text-secondary mb-1">{stat.v}</span>
                 <span className="text-xs sm:text-sm font-medium text-third">{stat.t}</span>
               </div>
             ))}
@@ -290,7 +269,6 @@ export default function LandingPage() {
           <p className="mt-2 md:mt-0">Fait avec passion pour les Systèmes Opérationnels ✨</p>
         </div>
       </footer>
-
     </div>
   );
 }
