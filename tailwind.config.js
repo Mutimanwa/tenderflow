@@ -17,11 +17,13 @@ export default {
         secondary: {
           DEFAULT: '#1E2772',
           light: '#F4F5FA',
+
         },
 
         third: '#555555',
-
+        fourth: '#EFF4FF',
         neutralLight: '#C2C2C2',
+
       },
       // Configuration de la police
       fontFamily: {
