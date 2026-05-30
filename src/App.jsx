@@ -38,7 +38,7 @@ function App() {
           <Route path="client/offer/:id" element={<OfferDetails />} />
           <Route path="client/submissions" element={<SubmitProposal />} />
           <Route path="client/documents" element={<MyDocuments />} />
-          <Route path="client/profile" element={<ProfileSettings />} />
+          <Route path="profile" element={<ProfileSettings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

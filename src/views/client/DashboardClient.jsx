@@ -1,170 +1,123 @@
-import { useOutletContext } from 'react-router-dom';
-import { 
-  FileText, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
-  TrendingUp, 
-  ArrowUpRight,
-  Plus,
-  EllipsisVertical,
-  ArrowLeft,
-  ArrowRight
-} from 'lucide-react';
+import { FileText, Send, CheckCircle2, XCircle, MoreVertical, Wrench, Laptop, Leaf, Truck } from 'lucide-react';
 
-export default function Dashboard() {
-  // On récupère le rôle configuré dynamiquement dans la Topbar / AppLayout
-  const [userRole] = useOutletContext();
-
-  // --- DONNÉES SIMULÉES (MOCK) ---
-  const statsData = {
-    acheteur: [
-      { id: 1, title: "Total Appels d'Offres", value: "12", subtext: "2 publiés ce mois-ci", icon: FileText, color: "bg-blue-50 text-secondary border-blue-100" },
-      { id: 2, title: "Soumissions Reçues", value: "48", subtext: "+15% depuis la semaine dernière", icon: TrendingUp, color: "bg-orange-50 text-primary border-orange-100" },
-      { id: 3, title: "Offres En Révision", value: "5", subtext: "Attente de validation", icon: Clock, color: "bg-amber-50 text-amber-600 border-amber-100" },
-      { id: 4, title: "Projets Clôturés", value: "18", subtext: "Prestataires contractés", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-    ],
-    fournisseur: [
-      { id: 1, title: "Offres Postulées", value: "7", subtext: "3 en attente de réponse", icon: FileText, color: "bg-blue-50 text-secondary border-blue-100" },
-      { id: 2, title: "Soumissions Acceptées", value: "2", subtext: "Contrats en cours de rédaction", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-      { id: 3, title: "En cours d'examen", value: "4", subtext: "Dossier technique validé", icon: Clock, color: "bg-amber-50 text-amber-600 border-amber-100" },
-      { id: 4, title: "Dossiers Rejetés", value: "1", subtext: "Critères non atteints", icon: AlertCircle, color: "bg-rose-50 text-rose-600 border-rose-100" },
-    ]
-  };
-
-  const recentActivities = {
-    acheteur: [
-      { id: "TND-2026-001", title: "Modernisation Infrastructure Réseau", company: "Tech Solutions Ltd", date: "Aujourd'hui, 14:32", budget: "45 000 €", status: "En attente", statusStyle: "bg-amber-50 text-amber-700 border-amber-200" },
-      { id: "TND-2026-003", title: "Refonte Site E-commerce Magento", company: "Digital Agency", date: "Hier, 11:15", budget: "24 000 €", status: "Validé", statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-      { id: "TND-2026-004", title: "Campagne Marketing Social Ads", company: "Growth Media", date: "25 Mai 2026", budget: "12 500 €", status: "En révision", statusStyle: "bg-blue-50 text-blue-700 border-blue-200" },
-    ],
-    fournisseur: [
-      { id: "TND-2026-001", title: "Modernisation Infrastructure Réseau", buyer: "Ministère de la Transition", date: "Soumis le 28/05/2026", budget: "45 000 €", status: "En examen", statusStyle: "bg-blue-50 text-blue-700 border-blue-200" },
-      { id: "TND-2026-009", title: "Audit Sécurité Cloud AWS", buyer: "FinTech National Bank", date: "Soumis le 14/05/2026", budget: "18 000 €", status: "Accepté", statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-      { id: "TND-2026-012", title: "Maintenance Logicielle ERP", buyer: "Global Logistics SA", date: "Soumis le 30/04/2026", budget: "60 000 €", status: "Décliné", statusStyle: "bg-rose-50 text-rose-700 border-rose-200" },
-    ]
-  };
-
-  const currentStats = statsData[userRole] || statsData.fournisseur;
-  const currentTable = recentActivities[userRole] || recentActivities.fournisseur;
+export default function ProviderDashboard() {
+  const submissions = [
+    { title: "Rénovation Complexe Sportif", client: "Ville de Lyon", icon: Wrench, iconBg: "bg-blue-50 text-blue-500", ref: "TFR-2023-001", status: "EN COURS", statusStyle: "bg-amber-50 text-amber-700 border-amber-200", date: "24 Oct, 2023" },
+    { title: "Fourniture Matériel IT", client: "Région IDF", icon: Laptop, iconBg: "bg-purple-50 text-purple-500", ref: "TFR-2023-084", status: "ACCEPTÉE", statusStyle: "bg-green-50 text-green-700 border-green-200", date: "18 Oct, 2023" },
+    { title: "Entretien Espaces Verts", client: "Mairie de Bordeaux", icon: Leaf, iconBg: "bg-amber-50 text-amber-600", ref: "TFR-2023-112", status: "SOUMIS", statusStyle: "bg-slate-100 text-slate-600 border-slate-300", date: "12 Oct, 2023" },
+    { title: "Logistique Transport Nord", client: "Global Logistics SA", icon: Truck, iconBg: "bg-red-50 text-red-500", ref: "TFR-2023-045", status: "REFUSÉE", statusStyle: "bg-red-50 text-red-700 border-red-200", date: "05 Oct, 2023" }
+  ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
       
-      {/* HEADER DU DASHBOARD */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-secondary tracking-tight">
-            Bonjour, Daniel luc
-          </h1>
-          <p className="text-sm text-third mt-1">
-            Voici un aperçu de vos activités de soumission pour aujourd'hui.
-          </p>
-        </div>
-        
-        {/* Bouton d'action contextuel */}
-        {userRole === 'acheteur' && (
-          <button className="inline-flex items-center gap-2 bg-primary text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/10 transition-all self-start sm:self-center">
-            <Plus className="w-4 h-4" /> Publier un Appel d'Offres
-          </button>
-        )}
+      {/* Message de Bienvenue */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Bonjour, Daniel luc</h1>
+        <p className="text-sm text-slate-500 mt-1">Voici un aperçu de vos activités de soumission pour aujourd'hui.</p>
       </div>
 
-      {/* GRILLE DES CARTES STATISTIQUES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {currentStats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.id} className="bg-white border border-slate-100 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
-              <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${stat.color}`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-semibold text-third/80 block">{stat.title}</span>
-                <span className="text-2xl font-extrabold text-secondary block">{stat.value}</span>
-                <span className="text-[11px] font-medium text-slate-400 block">{stat.subtext}</span>
-              </div>
+      {/* Grille des KPIs (4 Colonnes) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Offres Disponibles (Carte Pleine en Marron/Orange Brûlé) */}
+        <div className="bg-[#964f05] rounded-2xl p-5 text-white shadow-lg flex flex-col justify-between h-36">
+          <div className="flex justify-between items-start">
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-white" />
             </div>
-          );
-        })}
-      </div>
-
-      {/* ZONE DÉTAILLÉE : GRAPHIC & TABLEAU */}
-      <div className="grid lg:grid-cols-12 gap-6">
-        
-        {/* TABLEAU DES SOUUMISSIONS RÉCENTES (Prend 8 colonnes sur 12) */}
-        <div className="lg:col-span-12 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col justify-between overflow-hidden">
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-md">+12%</span>
+          </div>
           <div>
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-secondary text-base">
-                  {userRole === 'acheteur' ? 'Soumissions Récentes Reçues' : 'Suivi de vos Candidatures'}
-                </h3>
-                <p className="text-xs text-third mt-0.5">Dernières activités liées à vos dossiers</p>
-              </div>
-              <button className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                Voir tout <ArrowUpRight className="w-3 h-3" />
-              </button>
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/70">Offres disponibles</p>
+            <h2 className="text-3xl font-black mt-0.5">124</h2>
+          </div>
+        </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/70 border-b border-slate-100 text-[10px] font-bold text-secondary uppercase tracking-wider">
-                    <th className="py-3 px-6">ID / Projet</th>
-                    <th className="py-3 px-6">{userRole === 'acheteur' ? 'Candidat' : 'Entité Émettrice'}</th>
-                    <th className="py-3 px-6">Budget</th>
-                    <th className="py-3 px-6 text-center">Statut</th>
-                    <th className='py-3 px-6 '>Actions</th>
+        {/* Mes Soumissions */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <Send className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mes soumissions</p>
+            <h2 className="text-3xl font-black text-slate-800 mt-0.5">42</h2>
+          </div>
+        </div>
+
+        {/* Acceptées */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+          <div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acceptées</p>
+            <h2 className="text-3xl font-black text-slate-800 mt-0.5">18</h2>
+          </div>
+        </div>
+
+        {/* Refusées */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+          <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+            <XCircle className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Refusées</p>
+            <h2 className="text-3xl font-black text-slate-800 mt-0.5">5</h2>
+          </div>
+        </div>
+      </div>
+
+      {/* Tableau : Dernières soumissions */}
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="font-bold text-sm text-slate-800">Dernières soumissions</h3>
+          <button className="text-xs font-bold text-[#b45f06] hover:underline">Voir tout</button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                <th className="py-4 px-6">Titre de l'offre</th>
+                <th className="py-4 px-4">Référence</th>
+                <th className="py-4 px-4">Statut</th>
+                <th className="py-4 px-4">Date de dépôt</th>
+                <th className="py-4 px-6 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-sm">
+              {submissions.map((sub, idx) => {
+                const Icon = sub.icon;
+                return (
+                  <tr key={idx} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${sub.iconBg}`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-xs sm:text-sm">{sub.title}</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">{sub.client}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 font-mono text-xs text-slate-500">{sub.ref}</td>
+                    <td className="py-4 px-4">
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border tracking-wider ${sub.statusStyle}`}>
+                        {sub.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-xs font-medium text-slate-500">{sub.date}</td>
+                    <td className="py-4 px-6 text-center">
+                      <button className="p-1 text-slate-400 hover:text-slate-700 transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {currentTable.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="py-4 px-6 max-w-[240px]">
-                        <span className="font-mono text-[10px] text-slate-400 block mb-0.5">{row.id}</span>
-                        <span className="font-bold text-secondary truncate block">{row.title}</span>
-                      </td>
-                      <td className="py-4 px-6 text-third font-medium">
-                        {userRole === 'acheteur' ? row.company : row.buyer}
-                        <span className="block text-[10px] text-slate-400 font-normal mt-0.5">{row.date}</span>
-                      </td>
-                      <td className="py-4 px-6 font-bold text-secondary">{row.budget}</td>
-                      <td className="py-4 px-6 text-center">
-                        <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold border ${row.statusStyle}`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 font-bold">
-                         {/* More icon */}
-                         <EllipsisVertical className="w-4 h-4 text-slate-400 hover:text-slate-600 cursor-pointer" />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          {/* Pied de tableau (Pagination discrète simulée) */}
-          <div className="p-4 bg-slate-50/40 border-t border-slate-100 text-center text-[11px] text-slate-400 font-medium flex justify-between">
-            <span>Affichage des 3 derniers enregistrements</span>
-            {/* Pagination */}
-            <div className='flex gap-3'>
-              <button className="px-4 py-2 rounded-md border border-primary/20 bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors text-xs font-bold">
-                  <ArrowLeft className="w-4 h-4" />
-              </button>
-              <button className="px-4 py-2 rounded-md border border-primary/20 bg-primary-hover text-white hover:bg-slate-300 transition-colors text-xs font-bold">
-                1
-              </button>
-              <button className="px-4 py-2 rounded-md border border-primary/20 text-slate-600 hover:bg-slate-300 transition-colors text-xs font-bold">
-                2
-              </button>
-              <button className="px-4 py-2 rounded-md border border-primary/20 bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors text-xs font-bold">
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 

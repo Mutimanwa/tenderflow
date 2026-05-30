@@ -1,50 +1,59 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  FolderPlus, 
-  FileText, 
-  Users, 
+  Gavel, 
+  FolderHeart, 
+  FolderOpen, 
   Settings, 
   LogOut, 
-  Briefcase 
+  FileCheck, 
+  Users, 
+  Plus 
 } from 'lucide-react';
 import { logo } from '../../assets';
 
 export default function Sidebar({ userRole = 'fournisseur' }) {
+  const navigate = useNavigate();
   
-  // Configuration des menus selon le rôle
+  // Configuration des menus selon tes maquettes (Admin/Acheteur vs Fournisseur)
   const menus = {
     acheteur: [
-      { name: 'Vue d\'ensemble', path: 'admin/dashboard', icon: LayoutDashboard },
-      { name: 'Gérer les offres', path: 'admin/offers', icon: Briefcase },
-      { name: 'Publier une offre', path: 'admin/new-offer', icon: FolderPlus },
-      { name: 'Candidatures', path: 'admin/submissions', icon: FileText },
+      { name: 'Dashboard', path: 'admin/dashboard', icon: LayoutDashboard },
+      { name: "Appels d'offres", path: 'admin/offers', icon: Gavel },
+      { name: 'Soumissions', path: 'admin/submissions', icon: FileCheck },
       { name: 'Utilisateurs', path: 'admin/users', icon: Users },
+      { name: 'Paramètres', path: 'profile', icon: Settings },
     ],
     fournisseur: [
-      { name: 'Tableau de bord', path: 'client/dashboard', icon: LayoutDashboard },
-      { name: 'Offres disponibles', path: 'client/offers', icon: Briefcase },
-      { name: 'Mes soumissions', path: 'client/submissions', icon: FileText },
-      { name: 'Mes documents', path: 'client/documents', icon: FolderPlus },
+      { name: 'Dashboard', path: 'client/dashboard', icon: LayoutDashboard },
+      { name: "Appels d'offres actifs", path: 'client/offers', icon: Gavel },
+      { name: 'Mes offres', path: 'client/submissions', icon: FolderHeart },
+      { name: 'Documents', path: 'client/documents', icon: FolderOpen },
+      { name: 'Paramètre', path: 'profile', icon: Settings } // Sans "s" pour coller à la maquette
     ]
   };
 
   const currentMenu = menus[userRole] || menus.fournisseur;
 
+  // Gestion des actions du gros bouton en bas selon le rôle
+  const handleActionClick = () => {
+    if (userRole === 'acheteur') {
+      navigate('/admin/new-offer'); // Redirection vers la création d'offre
+    } else {
+      navigate('/client/new-submission'); // Redirection vers la nouvelle soumission
+    }
+  };
+
   return (
-    <aside className="w-64 bg-slate-50/10 text-white flex flex-col justify-between h-screen sticky top-0 shrink-0 border-r border-x-slate-200">
+    <aside className="w-64 bg-white border-r border-slate-100 flex flex-col justify-between h-screen sticky top-0 shrink-0">
       <div>
         {/* Logo de l'application */}
-        <div className="h-20 flex items-center px-6 ">
-          <img src={logo} alt="TenderFlow" className="h-8 object-contain " />
+        <div className="h-20 flex items-center px-6">
+          <img src={logo} alt="TenderFlow" className="h-8 object-contain" />
         </div>
 
-        {/* Liens de Navigation */}
-        <nav className="p-4 space-y-1.5 mt-4">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-3">
-            Navigation principale
-          </p>
-          
+        {/* Liens de Navigation Principaux */}
+        <nav className="p-4 space-y-1 mt-2">
           {currentMenu.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -52,10 +61,10 @@ export default function Sidebar({ userRole = 'fournisseur' }) {
                 key={index}
                 to={`/app/${item.path}`}
                 className={({ isActive }) => `
-                  flex items-center gap-3 px-4 py-3 rounded-md text-sm font-semibold tracking-wide transition-all duration-150
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150
                   ${isActive 
-                    ? 'bg-primary/20 text-primary-hover shadow-lg shadow-primary/10 border-l-4  border-primary' 
-                    : 'text-secondary hover:bg-primary/20 hover:text-primary-hover border-l-4 border-transparent hover:border-primary'
+                    ? 'bg-orange-50/60 text-orange-600 border-l-4 border-orange-500 rounded-l-none' 
+                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-r-4 border-transparent'
                   }
                 `}
               >
@@ -67,26 +76,35 @@ export default function Sidebar({ userRole = 'fournisseur' }) {
         </nav>
       </div>
 
-      {/* Zone Paramètres & Déconnexion en bas */}
-      <div className="p-4 border-none space-y-1">
-        <NavLink
-          to="/app/client/profile"
-          className={({ isActive }) => `
-            flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all
-            ${isActive ? 'bg-primary text-white' : 'text-secondary hover:bg-slate-800/60 hover:text-white'}
-          `}
-        >
-          <Settings className="w-4 h-4" />
-          <span>Paramètres</span>
-        </NavLink>
+      {/* Zone Actions Basses (Bouton d'action + Déconnexion) */}
+      <div className="p-4 space-y-2 border-t border-slate-50">
+        
+        {/* Gros bouton d'action principale adapté au rôle */}
+        {userRole === 'acheteur' ? (
+          <button 
+            onClick={handleActionClick}
+            className="w-full inline-flex items-center justify-center gap-1.5 bg-[#964f05] hover:bg-amber-900 text-white font-black py-3 px-4 rounded-xl text-xs transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Nouveau Dossier
+          </button>
+        ) : (
+          <button 
+            onClick={handleActionClick}
+            className="w-full inline-flex items-center justify-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white font-black py-3 px-4 rounded-xl text-xs transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Nouvelle soumission d'offre
+          </button>
+        )}
 
+        {/* Bouton de Déconnexion */}
         <button 
           onClick={() => window.location.href = '/login'}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-rose-400 hover:bg-rose-500/10 transition-all text-left"
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-slate-400 hover:text-red-600 rounded-xl transition-colors text-left"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 text-slate-300" />
           <span>Déconnexion</span>
         </button>
+
       </div>
     </aside>
   );
