@@ -1,141 +1,262 @@
-import  { useState } from 'react';
-import { FileText, Check, X, Download, Search, Building2, Calendar} from 'lucide-react';
+import { 
+  Layers, Clock, CheckCircle, XCircle, SlidersHorizontal, 
+  Download, Eye, MoreVertical, ChevronLeft, ChevronRight, TrendingUp 
+} from 'lucide-react';
 
 export default function ManageSubmissions() {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Données de tests basées sur ta maquette Soumission.png
-  const [submissions, setSubmissions] = useState([
-    { id: 'SUB-0981', company: "Tech Solutions Ltd", project: "Refonte Site E-commerce Magento Enterprise", date: "30 Mai 2026", amount: "18 500 €", fileTech: "CDC_Tech_V1.pdf", status: "En attente", statusColor: "bg-amber-50 text-amber-600 border-amber-200" },
-    { id: 'SUB-0982', company: "Innov'Marketing", project: "Campagne Social Ads & Growth Hacking", date: "29 Mai 2026", amount: "9 200 €", fileTech: "Prop_Commerciale.pdf", status: "Accepté", statusColor: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-    { id: 'SUB-0983', company: "Global CyberSec", project: "Audit Sécurité Cloud & Infrastructure AWS", date: "28 Mai 2026", amount: "7 000 €", fileTech: "Audit_Specs_Global.pdf", status: "En révision", statusColor: "bg-blue-50 text-secondary border-blue-200" },
-    { id: 'SUB-0984', company: "Logix Transports", project: "Optimisation de la Supply Chain Globale v4.0", date: "25 Mai 2026", amount: "42 000 €", fileTech: "Supply_Logix_Signed.pdf", status: "Refusé", statusColor: "bg-rose-50 text-rose-600 border-rose-200" },
-  ]);
-
-  // Action pour changer le statut d'une candidature à la volée
-  const handleAction = (id, newStatus, colorClasses) => {
-    setSubmissions(prev => prev.map(sub => 
-      sub.id === id ? { ...sub, status: newStatus, statusColor: colorClasses } : sub
-    ));
-  };
-
-  const filteredSubmissions = submissions.filter(sub => 
-    sub.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    sub.project.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Liste des soumissions calquée sur ta maquette
+  const submissions = [
+    {
+      id: "77291",
+      company: "Bati-Tech SA",
+      avatarBg: "bg-orange-100 text-[#b45f06]",
+      avatarText: "BT",
+      tender: "Réfection Pont-Neuf",
+      category: "Infrastructure",
+      amount: "1,240,000 €",
+      date: "12 Oct 2023",
+      status: "En attente",
+      statusStyle: "bg-blue-50 text-blue-700 border-blue-100"
+    },
+    {
+      id: "774291",
+      company: "Bati-Tech SA",
+      avatarBg: "bg-slate-100 text-slate-700",
+      avatarText: "GL",
+      tender: "Fourniture Matériel Bureau",
+      category: "Logistique",
+      amount: "45,000 €",
+      date: "11 Oct 2023",
+      status: "Acceptée",
+      statusStyle: "bg-green-50 text-green-700 border-green-100"
+    },
+    {
+      id: "77302",
+      company: "Novatech Solutions",
+      avatarBg: "bg-slate-100 text-slate-700",
+      avatarText: "NV",
+      tender: "Maintenance Logiciel RH",
+      category: "IT & Digital",
+      amount: "124,000 €",
+      date: "07 Oct 2023",
+      status: "Refusée",
+      statusStyle: "bg-red-50 text-red-700 border-red-100"
+    },
+    {
+      id: "77251",
+      company: "Sopra Construct",
+      avatarBg: "bg-orange-100 text-[#b45f06]",
+      avatarText: "SC",
+      tender: "Réfection Pont-Neuf",
+      category: "Infrastructure",
+      amount: "240,000 €",
+      date: "06 Oct 2023",
+      status: "En attente",
+      statusStyle: "bg-blue-50 text-blue-700 border-blue-100"
+    }
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
       
-      {/* En-tête de la page */}
-      <div>
-        <h1 className="text-2xl font-extrabold text-secondary tracking-tight">
-          Suivi des Candidatures
-        </h1>
-        <p className="text-xs text-third mt-0.5">
-          Analysez les dossiers techniques, comparez les propositions financières et attribuez les marchés.
-        </p>
-      </div>
-
-      {/* Barre de recherche rapide */}
-      <div className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-neutralLight absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Rechercher une entreprise, un projet..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-primary focus:bg-white transition-all text-secondary"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* En-tête de page */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
+            <span>Dashboard</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-[#b45f06] font-semibold">Gestion des Soumissions</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            Gestion des Soumissions
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Consultez et gérez les offres reçues pour vos appels d'offres en cours.
+          </p>
+        </div>
+        
+        {/* Actions d'en-tête */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+            <SlidersHorizontal className="w-3.5 h-3.5" /> Filtrer
+          </button>
+          <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+            <Download className="w-3.5 h-3.5" /> Exporter CSV
+          </button>
         </div>
       </div>
 
-      {/* Grille / Tableau des candidatures */}
+      {/* 1. Compteurs / Blocs KPI supérieurs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Soumissions */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm relative">
+          <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-700 flex items-center justify-center mb-3">
+            <Layers className="w-4 h-4" />
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Soumissions</p>
+          <h2 className="text-xl font-extrabold text-slate-800 mt-0.5">1,284</h2>
+          <span className="absolute top-4 right-4 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded-md">+12%</span>
+        </div>
+
+        {/* À réviser */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm relative">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
+            <Clock className="w-4 h-4" />
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">À réviser</p>
+          <h2 className="text-xl font-extrabold text-slate-800 mt-0.5">42</h2>
+          <span className="absolute top-4 right-4 bg-orange-100 text-orange-700 text-[10px] font-bold px-1.5 py-0.5 rounded-md">En attente</span>
+        </div>
+
+        {/* Acceptées */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center mb-3">
+            <CheckCircle className="w-4 h-4" />
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acceptées</p>
+          <h2 className="text-xl font-extrabold text-slate-800 mt-0.5">856</h2>
+        </div>
+
+        {/* Refusées */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center mb-3">
+            <XCircle className="w-4 h-4" />
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Refusées</p>
+          <h2 className="text-xl font-extrabold text-slate-800 mt-0.5">386</h2>
+        </div>
+      </div>
+
+      {/* 2. Tableau principal */}
       <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/70 border-b border-slate-100 text-[11px] font-bold text-secondary uppercase tracking-wider">
-                <th className="py-4 px-6">ID & Candidat</th>
-                <th className="py-4 px-4">Appel d'Offres Visé</th>
-                <th className="py-4 px-4 text-right">Offre Financière</th>
-                <th className="py-4 px-4">Dossier Technique</th>
-                <th className="py-4 px-4 text-center">Statut</th>
-                <th className="py-4 px-6 text-center">Décision Générale</th>
+              <tr className="bg-slate-50/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                <th className="py-4 px-6">Entreprise</th>
+                <th className="py-4 px-4">Appel d'offre lié</th>
+                <th className="py-4 px-4 text-center">Montant proposé</th>
+                <th className="py-4 px-4">Date de dépôt</th>
+                <th className="py-4 px-4">Statut</th>
+                <th className="py-4 px-6 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredSubmissions.map((sub) => (
-                <tr key={sub.id} className="hover:bg-slate-50/40 transition-colors group">
-                  
-                  {/* Candidat */}
-                  <td className="py-4 px-6 font-bold text-secondary">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 bg-slate-100 text-secondary rounded-lg flex items-center justify-center">
-                        <Building2 className="w-3.5 h-3.5" />
+            <tbody className="divide-y divide-slate-100 text-sm">
+              {submissions.map((sub, index) => (
+                <tr key={index} className="hover:bg-slate-50/30 transition-colors">
+                  {/* Entreprise avec Avatar */}
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold ${sub.avatarBg}`}>
+                        {sub.avatarText}
                       </div>
                       <div>
-                        <div>{sub.company}</div>
-                        <div className="text-[10px] font-medium text-third/60 mt-0.5 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> {sub.date}
-                        </div>
+                        <h4 className="font-bold text-slate-800">{sub.company}</h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">ID: #{sub.id}</p>
                       </div>
                     </div>
                   </td>
-
-                  {/* Projet Visé */}
-                  <td className="py-4 px-4 text-third font-medium max-w-xs truncate">
-                    {sub.project}
+                  
+                  {/* Appel d'offre lié */}
+                  <td className="py-4 px-4">
+                    <h5 className="font-semibold text-slate-700 text-xs">{sub.tender}</h5>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{sub.category}</p>
                   </td>
-
-                  {/* Montant financier */}
-                  <td className="py-4 px-4 text-right font-extrabold text-secondary text-sm">
+                  
+                  {/* Montant Proposé */}
+                  <td className="py-4 px-4 text-center font-bold text-slate-800">
                     {sub.amount}
                   </td>
-
-                  {/* Fichier joint */}
-                  <td className="py-4 px-4 font-medium text-primary">
-                    <div className="inline-flex items-center gap-1.5 cursor-pointer bg-orange-50 hover:bg-orange-100 px-2.5 py-1.5 rounded-lg transition-colors">
-                      <FileText className="w-3.5 h-3.5" />
-                      <span className="truncate max-w-[120px] text-[11px] font-bold">{sub.fileTech}</span>
-                      <Download className="w-3 h-3 text-primary ml-1" />
-                    </div>
+                  
+                  {/* Date de dépôt */}
+                  <td className="py-4 px-4 text-slate-500 text-xs font-medium">
+                    {sub.date}
                   </td>
-
-                  {/* Statut Badge */}
-                  <td className="py-4 px-4 text-center">
-                    <span className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold border ${sub.statusColor}`}>
+                  
+                  {/* Statut */}
+                  <td className="py-4 px-4">
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${sub.statusStyle}`}>
                       {sub.status}
                     </span>
                   </td>
-
-                  {/* Actions d'approbation */}
+                  
+                  {/* Actions */}
                   <td className="py-4 px-6 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        onClick={() => handleAction(sub.id, 'Accepté', 'bg-emerald-50 text-emerald-600 border-emerald-200')}
-                        disabled={sub.status === 'Accepté'}
-                        title="Valider la candidature"
-                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors disabled:opacity-30"
-                      >
-                        <Check className="w-4 h-4" />
+                    <div className="flex items-center justify-center gap-1">
+                      <button className="p-1.5 text-slate-400 hover:text-[#b45f06] hover:bg-slate-50 rounded-lg transition-colors">
+                        <Eye className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => handleAction(sub.id, 'Refusé', 'bg-rose-50 text-rose-600 border-rose-200')}
-                        disabled={sub.status === 'Refusé'}
-                        title="Rejeter le dossier"
-                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors disabled:opacity-30"
-                      >
-                        <X className="w-4 h-4" />
+                      <button className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg transition-colors">
+                        <MoreVertical className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="bg-slate-50/40 border-t border-slate-100 p-4 flex items-center justify-between text-xs font-medium text-slate-500">
+          <span>Affichage de 1 à 10 sur 1,284 résultats</span>
+          <div className="flex items-center gap-1">
+            <button className="p-1 hover:text-slate-800 transition-colors">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="w-6 h-6 bg-[#b45f06] text-white font-bold flex items-center justify-center rounded-md shadow-sm">1</span>
+            <span className="w-6 h-6 hover:bg-slate-200 flex items-center justify-center rounded-md cursor-pointer transition-colors">2</span>
+            <span className="w-6 h-6 hover:bg-slate-200 flex items-center justify-center rounded-md cursor-pointer transition-colors">3</span>
+            <span className="px-1 text-slate-400">...</span>
+            <span className="w-6 h-6 hover:bg-slate-200 flex items-center justify-center rounded-md cursor-pointer transition-colors">129</span>
+            <button className="p-1 hover:text-slate-800 transition-colors">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Section basse : Analyse comparative & Bloc Téléchargement */}
+      <div className="grid lg:grid-cols-12 gap-6">
+        {/* Analyse comparative des coûts */}
+        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="space-y-3 max-w-xl">
+            <h3 className="font-bold text-sm text-slate-800">Analyse comparative des coûts</h3>
+            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+              L'écart moyen entre les offres pour les projets d'infrastructure est actuellement de 8.4%. Nous recommandons de privilégier les soumissions avec un score de fiabilité supérieur à 85%.
+            </p>
+          </div>
+          
+          {/* Petites métriques en bas de l'analyse */}
+          <div className="flex gap-6 mt-6 border-t border-slate-50 pt-4">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase">Écart Min/Max</p>
+              <p className="text-sm font-extrabold text-slate-800 mt-0.5">15.2%</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase">Délai moyen</p>
+              <p className="text-sm font-extrabold text-slate-800 mt-0.5">14 jours</p>
+            </div>
+          </div>
+
+          {/* Flèche d'analyse graphique en arrière-plan (simulée via SVG) */}
+          <div className="absolute bottom-4 right-6 text-slate-100 pointer-events-none hidden sm:block">
+            <TrendingUp className="w-24 h-24 stroke-[0.5]" />
+          </div>
+        </div>
+
+        {/* Rapport Mensuel (Teinte marron caractéristique) */}
+        <div className="lg:col-span-4 bg-[#964f05] rounded-2xl p-6 text-white shadow-lg flex flex-col justify-between">
+          <div className="space-y-2">
+            <h3 className="font-bold text-sm">Rapport Mensuel</h3>
+            <p className="text-xs text-white/80 leading-relaxed font-medium">
+              Générez automatiquement la synthèse des soumissions validées ce mois-ci.
+            </p>
+          </div>
+          
+          <button className="w-full bg-white hover:bg-slate-50 text-[#b45f06] font-bold py-2.5 px-4 rounded-xl text-xs transition-all mt-6 shadow-sm text-center">
+            Télécharger le PDF
+          </button>
         </div>
       </div>
 
