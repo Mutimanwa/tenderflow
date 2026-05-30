@@ -70,7 +70,7 @@ export default function Sidebar({ userRole = 'fournisseur' }) {
       {/* Zone Paramètres & Déconnexion en bas */}
       <div className="p-4 border-none space-y-1">
         <NavLink
-          to="/app/settings"
+          to="/app/client/profile"
           className={({ isActive }) => `
             flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all
             ${isActive ? 'bg-primary text-white' : 'text-secondary hover:bg-slate-800/60 hover:text-white'}

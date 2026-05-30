@@ -36,7 +36,7 @@ function App() {
           <Route path="client/dashboard" element={<DashboardClient />} />
           <Route path="client/offers" element={<AvailableOffers />} />
           <Route path="client/offer/:id" element={<OfferDetails />} />
-          <Route path="client/submit" element={<SubmitProposal />} />
+          <Route path="client/submissions" element={<SubmitProposal />} />
           <Route path="client/documents" element={<MyDocuments />} />
           <Route path="client/profile" element={<ProfileSettings />} />
         </Route>

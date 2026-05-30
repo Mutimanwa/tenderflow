@@ -21,7 +21,7 @@ export default function AvailableOffers() {
       {/*  */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {offers.map((offer) => (
-            <div key={offer.id} className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div key={offer.id} className=" border border-primary-hover rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <div>
                 <div className="flex justify-between">
                    <span className={`inline-block text-[11px] font-bold px-2.5 py-1 rounded-md mb-4 ${offer.color}`}>{offer.tag}</span>
