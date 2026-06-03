@@ -38,9 +38,9 @@ export default function Sidebar({ userRole = 'fournisseur' }) {
   // Gestion des actions du gros bouton en bas selon le rôle
   const handleActionClick = () => {
     if (userRole === 'acheteur') {
-      navigate('/admin/new-offer'); // Redirection vers la création d'offre
+      navigate('/app/admin/new-offer'); // Redirection vers la création d'offre
     } else {
-      navigate('/client/new-submission'); // Redirection vers la nouvelle soumission
+      navigate('/app/client/new-submission'); // Redirection vers la nouvelle soumission
     }
   };
 
@@ -95,6 +95,7 @@ export default function Sidebar({ userRole = 'fournisseur' }) {
             <Plus className="w-4 h-4" /> Nouvelle soumission d'offre
           </button>
         )}
+        
 
         {/* Bouton de Déconnexion */}
         <button 

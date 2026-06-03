@@ -31,9 +31,11 @@ export default function SignUp() {
             </div>
             
             {/* le bouton de creation de compte  */}
+            <a href="/auth/login">
             <Button variant='ghost' className="w-96 ms-20 mt-8 border border-primary text-primary hover:bg-primary/10">
-              <a href="/auth/login">Se connecter</a>
+              Se connecter
             </Button>
+            </a>
      
     </div>
   );

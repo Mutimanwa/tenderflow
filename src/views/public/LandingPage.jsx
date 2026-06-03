@@ -1,64 +1,9 @@
-// import Navbar from '../../components/leading/Navbar';
-// import Button from '../../components/ui/Button';
-
-// export default function LandingPage() {
-//   return (
-//     <div className="min-h-screen bg-slate-50">
-//       <Navbar />
-//       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-//         <section className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
-//           <div className="space-y-6">
-//             <span className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">Plateforme de gestion des appels d'offres</span>
-//             <h1 className="text-5xl font-black tracking-tight text-slate-900">Simplifiez la publication, la gestion et la réponse aux appels d'offres.</h1>
-//             <p className="max-w-2xl text-lg leading-8 text-slate-600">
-//               TenderFlow centralise les offres, les soumissions et les documents pour les acheteurs et fournisseurs. Gagnez en visibilité et en efficacité grâce à des interfaces claires et des workflows optimisés.
-//             </p>
-//             <div className="flex flex-wrap gap-4">
-//               <Button className="shadow-xl">Découvrir</Button>
-//               <Button variant="secondary">Essayer gratuitement</Button>
-//             </div>
-//           </div>
-//           <div className="rounded-[2rem] bg-white p-10 shadow-2xl shadow-slate-900/5">
-//             <div className="grid gap-6">
-//               <div className="rounded-3xl border border-slate-200 p-8 bg-slate-50">
-//                 <h2 className="text-xl font-semibold text-slate-900">Offres recommandées</h2>
-//                 <p className="mt-3 text-sm text-slate-600">Accédez rapidement aux projets ouverts correspondant à votre profil.</p>
-//               </div>
-//               <div className="grid gap-4 rounded-3xl bg-white p-6 shadow-sm">
-//                 <div className="flex items-center justify-between text-sm text-slate-600">
-//                   <span>Offre infrastructure</span>
-//                   <span className="font-semibold text-slate-900">20 j</span>
-//                 </div>
-//                 <div className="flex items-center justify-between text-sm text-slate-600">
-//                   <span>Offre digitalisation</span>
-//                   <span className="font-semibold text-slate-900">42 j</span>
-//                 </div>
-//                 <div className="flex items-center justify-between text-sm text-slate-600">
-//                   <span>Offre construction</span>
-//                   <span className="font-semibold text-slate-900">11 j</span>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </section>
-//       </main>
-//     </div>
-//   );
-// }
-import { useState } from 'react';
-import { ArrowRight, CheckCircle2,CheckCircle, Star, Shield, Users, Layers, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle2,CheckCircle,  Shield,  Layers, Zap } from 'lucide-react';
 import {heroImage } from '../../assets';
 import Navbar from '../../components/leading/Navbar';
 
 export default function LandingPage() {
   // État pour le formulaire de simulation rapide
-  const [formData, setFormData] = useState({
-    title: '',
-    sector: 'Informatique & Tech',
-    description: '',
-    budget: '',
-    deadline: ''
-  });
 
   // Mock des offres récentes pour la grille
   const recentOffers = [

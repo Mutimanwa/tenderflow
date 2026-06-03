@@ -16,6 +16,7 @@ import OfferDetails from './views/client/OfferDetails';
 import SubmitProposal from './views/client/SubmitProposal';
 import MyDocuments from './views/client/MyDocuments';
 import ProfileSettings from './views/client/ProfileSettings';
+import NewSubmission from './views/client/NewSubmission';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="client/offer/:id" element={<OfferDetails />} />
           <Route path="client/submissions" element={<SubmitProposal />} />
           <Route path="client/documents" element={<MyDocuments />} />
+          <Route path="client/new-submission" element={<NewSubmission />} />
           <Route path="profile" element={<ProfileSettings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
