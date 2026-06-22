@@ -1,12 +1,41 @@
 import { UploadCloud, ShieldCheck, ArrowLeft, Send } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/client';
 
 export default function NewSubmission({ onBack }) {
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { token, user } = useAuth();
+
+  const handleSubmit = async () => {
+    if (!amount || !description) return alert('Veuillez renseigner le montant et la description.');
+    setSubmitting(true);
+    try {
+      const payload = {
+        offerId: null,
+        amount: Number(amount),
+        description,
+        ownerId: user?._id || user?.id || undefined,
+      };
+      await api.createSubmission(payload, token);
+      alert('Soumission envoyée avec succès.');
+      navigate('/app/client/submissions');
+    } catch (err) {
+      console.error(err);
+      alert(err.body?.message || 'Échec de l\'envoi de la soumission');
+    } finally { setSubmitting(false); }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       
       {/* Bouton retour */}
       <button 
-        onClick={onBack}
+        onClick={onBack || (() => navigate(-1))}
         className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors group"
       >
         <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> 
@@ -38,6 +67,8 @@ export default function NewSubmission({ onBack }) {
             <span className="text-slate-400 text-sm mr-3">💶</span>
             <input 
               type="number" 
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00" 
               className="w-full bg-transparent border-none outline-none text-slate-800 font-bold text-sm placeholder:text-slate-300"
             />
@@ -53,12 +84,14 @@ export default function NewSubmission({ onBack }) {
           </label>
           <textarea 
             rows={5}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Décrivez brièvement votre approche, votre méthodologie et les points clés de votre offre..."
             className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs font-medium text-slate-700 outline-none focus:border-orange-500 focus:bg-white transition-all resize-none placeholder:text-slate-400"
           />
         </div>
 
-        {/* Zone d'Upload Dragon Drop */}
+        {/* Zone d'Upload Dragon Drop (hand-off to documents) */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-800 block">
             Upload de fichiers (Documents techniques & PDF)
@@ -83,8 +116,8 @@ export default function NewSubmission({ onBack }) {
           <ShieldCheck className="w-4 h-4 text-green-600" />
           <span>Transmission sécurisée par chiffrement TLS 1.3</span>
         </div>
-        <button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/10 transition-colors self-end sm:self-auto">
-          Envoyer la proposition <Send className="w-3.5 h-3.5" />
+        <button onClick={handleSubmit} disabled={submitting} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/10 transition-colors self-end sm:self-auto">
+          {submitting ? 'Envoi…' : 'Envoyer la proposition'} <Send className="w-3.5 h-3.5" />
         </button>
       </div>
 

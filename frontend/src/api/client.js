@@ -84,8 +84,8 @@ export async function uploadDocument(file, token) {
   return res.json();
 }
 
-export async function getDocuments() {
-  return request('/api/documents');
+export async function getDocuments(token) {
+  return request('/api/documents', { headers: { ...authHeader(token) } });
 }
 
 export async function deleteDocument(id, token) {
@@ -95,9 +95,17 @@ export async function deleteDocument(id, token) {
   });
 }
 
-export async function getSubmissions(offerId) {
-  if (offerId) return request(`/api/submissions/offer/${offerId}`);
-  return request('/api/submissions');
+export async function getSubmissions(offerId, token) {
+  if (offerId) return request(`/api/submissions/offer/${offerId}`, { headers: { ...authHeader(token) } });
+  return request('/api/submissions', { headers: { ...authHeader(token) } });
+}
+
+export async function createSubmission(payload, token) {
+  return request('/api/submissions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader(token) },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function deleteSubmission(id, token) {
@@ -107,8 +115,8 @@ export async function deleteSubmission(id, token) {
   });
 }
 
-export async function getUsers() {
-  return request('/api/users');
+export async function getUsers(token) {
+  return request('/api/users', { headers: { ...authHeader(token) } });
 }
 
 export async function getUser(id) {
@@ -138,8 +146,30 @@ export async function changePassword(id, password, token) {
   });
 }
 
-export async function getAdminStats() {
-  return request('/api/admin/stats');
+export async function getAdminStats(token) {
+  return request('/api/admin/stats', { headers: { ...authHeader(token) } });
 }
 
-export default { login, register, getOffers, createOffer, uploadDocument };
+const client = {
+  login,
+  register,
+  getOffers,
+  createOffer,
+  getOffer,
+  updateOffer,
+  deleteOffer,
+  uploadDocument,
+  getDocuments,
+  deleteDocument,
+  getSubmissions,
+  createSubmission,
+  deleteSubmission,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+  changePassword,
+  getAdminStats,
+};
+
+export default client;

@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
     user = new User({ name, email, password: hashed, role });
     await user.save();
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-    res.json({ user: { id: user._id, name: user.name, email: user.email }, token });
+    res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, status: user.status }, token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ message: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-    res.json({ user: { id: user._id, name: user.name, email: user.email }, token });
+    res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, status: user.status }, token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

@@ -14,7 +14,7 @@ export default function MyDocuments() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await api.getDocuments();
+      const data = await api.getDocuments(token);
       setDocuments(Array.isArray(data) ? data : (data.documents || []));
     } catch (err) {
       console.error(err);
@@ -22,7 +22,7 @@ export default function MyDocuments() {
     } finally { setLoading(false); }
   };
 
-  useEffect(()=>{ load(); }, []);
+  useEffect(()=>{ load(); }, [token]);
 
   const categories = ['Tout', 'Attestations', 'Technique', 'Financier'];
 

@@ -1,5 +1,7 @@
 import { Users, Gavel, FileText, TrendingUp, Clock, Zap, ChevronDown, MoreVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import api from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 
 export default function DashboardAdmin() {
   // recentActivities will be populated from API
@@ -7,12 +9,14 @@ export default function DashboardAdmin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     let mounted = true;
     async function load() {
       setLoading(true);
       try {
-        const data = await (await import('../../api/client')).getAdminStats();
+        const data = await api.getAdminStats(token);
         if (!mounted) return;
         setStats(data || {});
       } catch (err) {
@@ -23,7 +27,7 @@ export default function DashboardAdmin() {
     }
     load();
     return () => { mounted = false; };
-  }, []);
+  }, [token]);
 
   const recentActivities = (stats.recentOffers || []).map((o, i) => ({ id: i, ref: o._id || o.id, objet: o.title, client: '-', date: new Date(o.createdAt).toLocaleString(), status: o.status || 'OUVERT', statusColor: 'bg-green-100 text-green-700' }));
 
@@ -36,7 +40,7 @@ export default function DashboardAdmin() {
           Tableau de Bord
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Bienvenue, voici un aperçu de l'activité de TenderFlow aujourd'hui.
+          {loading ? 'Chargement des statistiques…' : 'Bienvenue, voici un aperçu de l\'activité de TenderFlow aujourd\'hui.'}
         </p>
       </div>
 
@@ -50,7 +54,7 @@ export default function DashboardAdmin() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Utilisateurs</p>
-            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">1,240</h2>
+            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">{stats.usersCount || 0}</h2>
             <p className="text-xs font-bold text-green-600 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3.5 h-3.5" /> +12% ce mois
             </p>
@@ -64,7 +68,7 @@ export default function DashboardAdmin() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Appels d'offres actifs</p>
-            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">42</h2>
+            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">{stats.offersCount || 0}</h2>
             <p className="text-xs font-bold text-[#b45f06] flex items-center gap-1 mt-1">
               <Clock className="w-3.5 h-3.5" /> 5 expirent bientôt
             </p>
@@ -78,7 +82,7 @@ export default function DashboardAdmin() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Soumissions reçues</p>
-            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">156</h2>
+            <h2 className="text-3xl font-extrabold text-slate-800 mt-1">{stats.submissionsCount || 0}</h2>
             <p className="text-xs font-bold text-green-600 flex items-center gap-1 mt-1">
               <Zap className="w-3.5 h-3.5" /> +24 depuis hier
             </p>

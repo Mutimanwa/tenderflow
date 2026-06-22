@@ -17,9 +17,12 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await login(email, password);
-      if (res?.token) {
-        navigate('/app/client/dashboard');
-      }
+          if (res && res.token) {
+            // Redirect by role (user already set in AuthContext.login)
+            const role = res.user?.role || 'buyer';
+            if (role === 'admin') navigate('/app/admin/dashboard');
+            else navigate('/app/client/dashboard');
+          }
     } catch (err) {
       console.error(err);
       alert(err.body?.message || 'Erreur de connexion');

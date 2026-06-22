@@ -2,7 +2,7 @@ import { Search, Bell , CircleQuestionMark } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Topbar() {
-  const { user, logout } = useAuth() || {};
+  const { user } = useAuth() || {};
 
   const defaultProfile = { name: 'Invité', role: 'Visiteur', avatarColor: 'bg-slate-400' };
   const currentUser = user || defaultProfile;
@@ -28,9 +28,6 @@ export default function Topbar() {
             <p className="text-[11px] font-medium text-third/80">{currentUser.role}</p>
           </div>
           <div className={`${currentUser.avatarColor || 'bg-slate-400'} w-10 h-10 text-white font-bold rounded-full flex items-center justify-center text-sm uppercase shadow-inner`}>{(currentUser.name || 'I').charAt(0)}</div>
-          {user ? (
-            <button onClick={logout} className="text-xs text-rose-600 hover:underline">Se déconnecter</button>
-          ) : null}
         </div>
       </div>
     </header>
