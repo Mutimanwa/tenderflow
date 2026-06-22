@@ -1,8 +1,28 @@
-import { useState } from 'react';
-import { UploadCloud, FileText, ArrowUpDown, ShieldCheck, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { UploadCloud, FileText, ArrowUpDown, Trash2 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/client';
 
 export default function MyDocuments() {
   const [activeTab, setActiveTab] = useState('Tout');
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
+  const { token } = useAuth();
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getDocuments();
+      setDocuments(Array.isArray(data) ? data : (data.documents || []));
+    } catch (err) {
+      console.error(err);
+      setDocuments([]);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(()=>{ load(); }, []);
 
   const categories = ['Tout', 'Attestations', 'Technique', 'Financier'];
 
@@ -90,15 +110,24 @@ export default function MyDocuments() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Colonne Gauche : Importateur (5 colonnes) */}
-        <div className="lg:col-span-5 border-2 border-dashed border-orange-200 bg-orange-50/5 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[340px] group hover:bg-orange-50/20 transition-colors cursor-pointer">
+        <div className="lg:col-span-5 border-2 border-dashed border-orange-200 bg-orange-50/5 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[340px] group hover:bg-orange-50/20 transition-colors">
           <div className="w-12 h-12 rounded-full bg-orange-100/60 text-orange-600 flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform">
             <UploadCloud className="w-5 h-5" />
           </div>
           <h3 className="text-sm font-bold text-slate-800">Importer des fichiers</h3>
-          <p className="text-xs text-slate-400 mt-1 mb-5">
-            Glissez-déposez vos fichiers ici ou <span className="text-[#b45f06] font-bold underline">parcourez vos dossiers</span>
-          </p>
+          <p className="text-xs text-slate-400 mt-1 mb-5">Glissez-déposez vos fichiers ici ou <span className="text-[#b45f06] font-bold underline">parcourez vos dossiers</span></p>
+          <input ref={fileRef} type="file" className="hidden" onChange={async (e)=>{
+            const f = e.target.files && e.target.files[0];
+            if(!f) return;
+            setUploading(true);
+            try{
+              await api.uploadDocument(f, token);
+              await load();
+            }catch(err){ console.error(err); alert('Échec upload'); }
+            finally{ setUploading(false); fileRef.current.value = ''; }
+          }} />
           <div className="flex gap-1.5 text-[9px] font-black tracking-wider text-slate-400">
+            <button onClick={()=>fileRef.current.click()} className="px-2 py-0.5 bg-slate-100 border border-slate-200/60 rounded">Parcourir</button>
             <span className="px-2 py-0.5 bg-slate-100 border border-slate-200/60 rounded">PDF</span>
             <span className="px-2 py-0.5 bg-slate-100 border border-slate-200/60 rounded">DOCX</span>
             <span className="px-2 py-0.5 bg-slate-100 border border-slate-200/60 rounded">XLSX</span>
@@ -118,30 +147,30 @@ export default function MyDocuments() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
-                {documentList.map((doc, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
-                    {/* Nom & Type */}
+                {loading && (
+                  <tr><td colSpan={4} className="py-6 text-center text-slate-500">Chargement…</td></tr>
+                )}
+                {!loading && documents.length === 0 && (
+                  <tr><td colSpan={4} className="py-6 text-center text-slate-500">Aucun document</td></tr>
+                )}
+                {documents.map((doc, idx) => (
+                  <tr key={doc._id || idx} className="hover:bg-slate-50/40 transition-colors">
                     <td className="py-4 px-5 flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold ${doc.iconColor}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-slate-700 bg-slate-100`}>
                         <FileText className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-slate-800 truncate">{doc.name}</h4>
-                        <span className="text-[10px] text-slate-400 block font-medium mt-0.5">{doc.type}</span>
+                        <h4 className="font-bold text-slate-800 truncate">{doc.originalName || doc.filename}</h4>
+                        <span className="text-[10px] text-slate-400 block font-medium mt-0.5">{doc.ownerName || ''}</span>
                       </div>
                     </td>
-                    {/* Date */}
-                    <td className="py-4 px-5 text-slate-500 font-medium">{doc.date}</td>
-                    {/* Taille */}
-                    <td className="py-4 px-5 text-slate-400 font-mono text-[11px]">{doc.size}</td>
-                    {/* Statut avec Badge */}
+                    <td className="py-4 px-5 text-slate-500 font-medium">{new Date(doc.createdAt || doc.updatedAt || undefined).toLocaleDateString()}</td>
+                    <td className="py-4 px-5 text-slate-400 font-mono text-[11px]">{Math.round((doc.size || 0)/1024) + ' KB'}</td>
                     <td className="py-4 px-5">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[9px] font-bold tracking-wide ${doc.statusClass}`}>
-                        {doc.status === "Vérifié" && <ShieldCheck className="w-2.5 h-2.5" />}
-                        {doc.status === "Expire bientôt" && <AlertTriangle className="w-2.5 h-2.5" />}
-                        {doc.status === "En cours" && <RefreshCw className="w-2.5 h-2.5 animate-spin-slow" />}
-                        {doc.status}
-                      </span>
+                      <div className="flex items-center gap-2 justify-end">
+                        <button onClick={async ()=>{ if(window.confirm('Supprimer ce document ?')){ try{ await api.deleteDocument(doc._id || doc.id, token); await load(); }catch(e){ console.error(e); alert('Erreur'); } } }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4"/></button>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[9px] font-bold tracking-wide bg-green-50 text-green-700`}>Télécharger</span>
+                      </div>
                     </td>
                   </tr>
                 ))}

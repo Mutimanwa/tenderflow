@@ -10,6 +10,8 @@ const authRoutes = require('./routes/auth');
 const offerRoutes = require('./routes/offers');
 const submissionRoutes = require('./routes/submissions');
 const documentRoutes = require('./routes/documents');
+const userRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
@@ -23,6 +25,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true, message: 'TenderFlow API' }));
 

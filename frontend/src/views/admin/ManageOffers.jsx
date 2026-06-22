@@ -2,15 +2,16 @@ import {
   FileText, CheckCircle2, Clock, Archive, SlidersHorizontal, 
   Plus, Calendar, Pencil, Trash2, ChevronLeft, ChevronRight, Lightbulb 
 } from 'lucide-react';
+import useOffers from '../../hooks/useOffers';
+import { useNavigate } from 'react-router-dom';
 
 export default function ManageOffers() {
-  // Simulation de la liste présente sur la maquette
-  const offersList = [
-    { id: 'AO-2023-0892', title: 'Rénovation du Complexe Sportif Municipal', category: 'Infrastructures', deadline: '15 Octobre 2023', status: 'Ouvert', budget: '1,250,000 €', statusStyle: 'bg-green-50 text-green-700 border-green-200' },
-    { id: 'AO-2023-0901', title: 'Maintenance du Parc Informatique Régional', category: 'Services IT', deadline: '02 Octobre 2023', status: 'En révision', budget: '450,000 €', statusStyle: 'bg-orange-50 text-orange-700 border-orange-200', isUrgent: true },
-    { id: 'AO-2023-0850', title: 'Fourniture de Mobilier Scolaire', category: 'Fournitures', deadline: '25 Septembre 2023', status: 'Fermé', budget: '120,000 €', statusStyle: 'bg-slate-100 text-slate-600 border-slate-200' },
-    { id: 'AO-2023-1022', title: 'Extension du Réseau Fibre Optique', category: 'Télécommunications', deadline: '30 Novembre 2023', status: 'Ouvert', budget: '3,800,000 €', statusStyle: 'bg-green-50 text-green-700 border-green-200' },
-  ];
+  const { offers, loading, error, removeOffer } = useOffers();
+  const navigate = useNavigate();
+
+  // If API returns at top-level an object with `offers`, use that. Already handled in hook.
+
+  const offersList = offers && offers.length ? offers : [];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
@@ -25,7 +26,7 @@ export default function ManageOffers() {
             Supervisez, modifiez et créez de nouvelles opportunités de marché.
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-[#f97316] hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-sm transition-colors self-start sm:self-auto">
+        <button onClick={() => navigate('/app/admin/new-offer')} className="inline-flex items-center gap-2 bg-[#f97316] hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-sm transition-colors self-start sm:self-auto">
           <Plus className="w-4 h-4" /> Nouveau Dossier
         </button>
       </div>
@@ -107,50 +108,71 @@ export default function ManageOffers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {offersList.map((offer, index) => (
-                <tr key={index} className="hover:bg-slate-50/30 transition-colors">
-                  {/* Titre + Sous-titre dynamique */}
-                  <td className="py-4 px-6 max-w-md">
-                    <h4 className="font-bold text-slate-800 text-sm leading-snug">{offer.title}</h4>
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Réf: <span className="font-semibold">{offer.id}</span> • {offer.category}
-                    </p>
-                  </td>
-                  
-                  {/* Date Limite */}
-                  <td className="py-4 px-4 font-medium text-slate-600">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Calendar className={`w-4 h-4 ${offer.isUrgent ? 'text-red-500' : 'text-slate-400'}`} />
-                      <span className={offer.isUrgent ? 'text-red-600 font-bold' : ''}>{offer.deadline}</span>
-                    </span>
-                  </td>
-                  
-                  {/* Badge Statut */}
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${offer.statusStyle}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${offer.status === 'Ouvert' ? 'bg-green-500' : offer.status === 'En révision' ? 'bg-orange-500' : 'bg-slate-400'}`} />
-                      {offer.status}
-                    </span>
-                  </td>
-                  
-                  {/* Budget */}
-                  <td className="py-4 px-4 text-right font-bold text-slate-700">
-                    {offer.budget}
-                  </td>
-                  
-                  {/* Actions (Editer / Supprimer) */}
-                  <td className="py-4 px-6 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors" title="Modifier">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+              {loading && (
+                <tr>
+                  <td colSpan="5" className="py-6 px-6 text-center text-slate-500">Chargement des appels d'offres…</td>
                 </tr>
-              ))}
+              )}
+              {error && (
+                <tr>
+                  <td colSpan="5" className="py-6 px-6 text-center text-red-600">Erreur lors du chargement des offres</td>
+                </tr>
+              )}
+              {!loading && !offersList.length && !error && (
+                <tr>
+                  <td colSpan="5" className="py-6 px-6 text-center text-slate-500">Aucune offre disponible</td>
+                </tr>
+              )}
+              {offersList.map((offer, index) => {
+                const id = offer._id || offer.id || index;
+                const title = offer.title || offer.name || 'Sans titre';
+                const category = offer.sector || offer.category || offer.type || '—';
+                const deadline = offer.deadline ? new Date(offer.deadline).toLocaleDateString() : (offer.deadline || '—');
+                const budget = offer.budget ? (typeof offer.budget === 'number' ? offer.budget.toLocaleString() + ' €' : offer.budget) : '—';
+                const status = offer.status || (offer.closed ? 'Fermé' : 'Ouvert');
+                const isUrgent = offer.isUrgent || false;
+                const statusStyle = status === 'Ouvert' ? 'bg-green-50 text-green-700 border-green-200' : status === 'En révision' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-slate-100 text-slate-600 border-slate-200';
+
+                return (
+                  <tr key={id} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="py-4 px-6 max-w-md">
+                      <h4 className="font-bold text-slate-800 text-sm leading-snug">{title}</h4>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Réf: <span className="font-semibold">{offer.reference || id}</span> • {category}
+                      </p>
+                    </td>
+
+                    <td className="py-4 px-4 font-medium text-slate-600">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className={`w-4 h-4 ${isUrgent ? 'text-red-500' : 'text-slate-400'}`} />
+                        <span className={isUrgent ? 'text-red-600 font-bold' : ''}>{deadline}</span>
+                      </span>
+                    </td>
+
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusStyle}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'Ouvert' ? 'bg-green-500' : status === 'En révision' ? 'bg-orange-500' : 'bg-slate-400'}`} />
+                        {status}
+                      </span>
+                    </td>
+
+                    <td className="py-4 px-4 text-right font-bold text-slate-700">
+                      {budget}
+                    </td>
+
+                    <td className="py-4 px-6 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button onClick={() => navigate(`/app/admin/edit-offer/${id}`)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors" title="Modifier">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={async ()=>{ if(window.confirm('Supprimer cette offre ?')){ try{ await removeOffer(id); } catch(err){ console.error(err); alert('Erreur suppression'); } } }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

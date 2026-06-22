@@ -2,59 +2,41 @@ import {
   Layers, Clock, CheckCircle, XCircle, SlidersHorizontal, 
   Download, Eye, MoreVertical, ChevronLeft, ChevronRight, TrendingUp 
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import api from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ManageSubmissions() {
-  // Liste des soumissions calquée sur ta maquette
-  const submissions = [
-    {
-      id: "77291",
-      company: "Bati-Tech SA",
-      avatarBg: "bg-orange-100 text-[#b45f06]",
-      avatarText: "BT",
-      tender: "Réfection Pont-Neuf",
-      category: "Infrastructure",
-      amount: "1,240,000 €",
-      date: "12 Oct 2023",
-      status: "En attente",
-      statusStyle: "bg-blue-50 text-blue-700 border-blue-100"
-    },
-    {
-      id: "774291",
-      company: "Bati-Tech SA",
-      avatarBg: "bg-slate-100 text-slate-700",
-      avatarText: "GL",
-      tender: "Fourniture Matériel Bureau",
-      category: "Logistique",
-      amount: "45,000 €",
-      date: "11 Oct 2023",
-      status: "Acceptée",
-      statusStyle: "bg-green-50 text-green-700 border-green-100"
-    },
-    {
-      id: "77302",
-      company: "Novatech Solutions",
-      avatarBg: "bg-slate-100 text-slate-700",
-      avatarText: "NV",
-      tender: "Maintenance Logiciel RH",
-      category: "IT & Digital",
-      amount: "124,000 €",
-      date: "07 Oct 2023",
-      status: "Refusée",
-      statusStyle: "bg-red-50 text-red-700 border-red-100"
-    },
-    {
-      id: "77251",
-      company: "Sopra Construct",
-      avatarBg: "bg-orange-100 text-[#b45f06]",
-      avatarText: "SC",
-      tender: "Réfection Pont-Neuf",
-      category: "Infrastructure",
-      amount: "240,000 €",
-      date: "06 Oct 2023",
-      status: "En attente",
-      statusStyle: "bg-blue-50 text-blue-700 border-blue-100"
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.getSubmissions();
+      setSubmissions(Array.isArray(data) ? data : (data.submissions || []));
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(()=>{ load(); }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Supprimer cette soumission ?')) return;
+    try {
+      await api.deleteSubmission(id, token);
+      setSubmissions((s) => s.filter((x) => (x._id || x.id) !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Erreur lors de la suppression');
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">

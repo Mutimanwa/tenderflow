@@ -1,34 +1,46 @@
-import  { useState } from 'react';
-import { Search, ShieldCheck, UserMinus, UserCheck, Mail, Shield, Building2 } from 'lucide-react';
+import  { useEffect, useState } from 'react';
+import { Search, ShieldCheck, UserMinus, UserCheck, Mail, Shield, Building2, Trash2 } from 'lucide-react';
+import api from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ManageUsers() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Données fictives issues de la logique de ta maquette Utilisateur.png
-  const [users, setUsers] = useState([
-    { id: 'USR-001', name: "Daniel Luc", email: "daniel.luc@techsolutions.bi", company: "Tech Solutions Ltd", role: "Fournisseur", status: "Actif", statusColor: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-    { id: 'USR-002', name: "Alain Ndikumana", email: "a.ndi@innovmarketing.com", company: "Innov'Marketing", role: "Fournisseur", status: "Actif", statusColor: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-    { id: 'USR-003', name: "Marie Kaneza", email: "m.kaneza@cybersec.bi", company: "Global CyberSec", role: "Fournisseur", status: "En attente", statusColor: "bg-amber-50 text-amber-600 border-amber-200" },
-    { id: 'USR-004', name: "Nelson Blessing", email: "nelson@tenderflow.gov", company: "Ministère Énergie / Admin", role: "Acheteur", status: "Actif", statusColor: "bg-blue-50 text-secondary border-blue-200" },
-    { id: 'USR-005', name: "Jean-Marie Buje", email: "jm.buje@logix.bi", company: "Logix Transports", role: "Fournisseur", status: "Suspendu", statusColor: "bg-rose-50 text-rose-600 border-rose-200" },
-  ]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { token, user } = useAuth();
 
-  // Action pour modifier le statut d'un utilisateur
-  const toggleUserStatus = (id, currentStatus) => {
-    setUsers(prev => prev.map(user => {
-      if (user.id === id) {
-        const nextStatus = currentStatus === 'Actif' ? 'Suspendu' : 'Actif';
-        const nextColor = nextStatus === 'Actif' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200';
-        return { ...user, status: nextStatus, statusColor: nextColor };
-      }
-      return user;
-    }));
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.getUsers();
+      setUsers(Array.isArray(data) ? data : (data.users || []));
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(()=>{ load(); }, []);
+
+  // Action pour modifier le statut d'un utilisateur
+  const toggleUserStatus = async (id, currentStatus) => {
+    // Map frontend statuses to backend values
+    const next = currentStatus === 'En attente' || currentStatus === 'suspended' || currentStatus === 'pending' ? 'active' : (currentStatus === 'Actif' || currentStatus === 'active' ? 'suspended' : 'active');
+    try {
+      await api.updateUser(id, { status: next }, token);
+      await load();
+    } catch (err) {
+      console.error(err);
+      alert('Erreur');
+    }
+  };
+
+  const filteredUsers = users.filter(u => (u.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (u.company || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="space-y-6">
@@ -71,13 +83,15 @@ export default function ManageUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
+              {loading && <tr><td colSpan={5} className="py-6 text-center text-slate-500">Chargement…</td></tr>}
+              {error && <tr><td colSpan={5} className="py-6 text-center text-red-600">Erreur</td></tr>}
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50/40 transition-colors group">
+                <tr key={user._id || user.id} className="hover:bg-slate-50/40 transition-colors group">
                   
                   {/* Utilisateur & Email */}
                   <td className="py-4 px-6">
                     <div className="font-bold text-secondary text-sm">{user.name}</div>
-                    <div className="text-[10px] font-medium text-third/70 mt-0.5 flex items-center gap-1">
+                      <div className="text-[10px] font-medium text-third/70 mt-0.5 flex items-center gap-1">
                       <Mail className="w-3 h-3" /> {user.email}
                     </div>
                   </td>
@@ -91,11 +105,11 @@ export default function ManageUsers() {
                   </td>
 
                   {/* Rôle */}
-                  <td className="py-4 px-4 font-medium text-third">
+                    <td className="py-4 px-4 font-medium text-third">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] ${
-                      user.role === 'Acheteur' ? 'bg-blue-50 text-secondary' : 'bg-orange-50 text-primary'
+                      (user.role || '').toLowerCase() === 'buyer' || (user.role==='Acheteur') ? 'bg-blue-50 text-secondary' : 'bg-orange-50 text-primary'
                     }`}>
-                      <Shield className="w-2.5 h-2.5" /> {user.role}
+                      <Shield className="w-2.5 h-2.5" /> {user.role || '—'}
                     </span>
                   </td>
 
@@ -107,28 +121,29 @@ export default function ManageUsers() {
                   </td>
 
                   {/* Actions de contrôle directes */}
-                  <td className="py-4 px-6 text-center">
+                    <td className="py-4 px-6 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      {user.status === 'En attente' ? (
+                      {user.status === 'pending' || user.status === 'En attente' ? (
                         <button
-                          onClick={() => toggleUserStatus(user.id, 'Suspendu')}
+                          onClick={() => toggleUserStatus(user._id || user.id, 'pending')}
                           className="bg-primary text-white font-bold px-3 py-1.5 rounded-lg text-[10px] hover:bg-primary-hover transition-all flex items-center gap-1"
                         >
-                          <ShieldCheck className="w-3 h-3" /> Approuver le compte
+                          <ShieldCheck className="w-3 h-3" /> Approuver
                         </button>
                       ) : (
                         <button
-                          onClick={() => toggleUserStatus(user.id, user.status)}
+                          onClick={() => toggleUserStatus(user._id || user.id, user.status)}
                           className={`p-2 rounded-xl transition-all ${
-                            user.status === 'Actif'
+                            (user.status === 'active' || user.status === 'Actif')
                               ? 'text-rose-500 hover:bg-rose-50'
                               : 'text-emerald-600 hover:bg-emerald-50'
                           }`}
-                          title={user.status === 'Actif' ? "Suspendre l'accès" : "Réactiver l'accès"}
+                          title={(user.status === 'active' || user.status === 'Actif') ? "Suspendre l'accès" : "Réactiver l'accès"}
                         >
-                          {user.status === 'Actif' ? <UserMinus className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                          {(user.status === 'active' || user.status === 'Actif') ? <UserMinus className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                         </button>
                       )}
+                      <button onClick={async ()=>{ if(!window.confirm('Supprimer cet utilisateur ?')) return; try{ await api.deleteUser(user._id || user.id, token); await load(); }catch(e){ console.error(e); alert('Erreur'); } }} className="p-2 rounded-xl text-rose-500 hover:bg-rose-50" title="Supprimer"><Trash2 className="w-4 h-4"/></button>
                     </div>
                   </td>
 

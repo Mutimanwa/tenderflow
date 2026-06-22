@@ -1,12 +1,31 @@
 import { Users, Gavel, FileText, TrendingUp, Clock, Zap, ChevronDown, MoreVertical } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function DashboardAdmin() {
-  // Données pour le tableau des activités récentes
-  const recentActivities = [
-    { id: 1, ref: "AO-2024-001", objet: "Rénovation Groupe Scolaire Centre", client: "Mairie de Lyon", date: "Il y a 2h", status: "OUVERT", statusColor: "bg-green-100 text-green-700" },
-    { id: 2, ref: "AO-2024-042", objet: "Maintenance Infrastructure IT", client: "Région AURA", date: "Il y a 5h", status: "EN COURS", statusColor: "bg-orange-100 text-orange-700" },
-    { id: 3, ref: "AO-2023-156", objet: "Fourniture Mobilier Bureau", client: "CCI Marseille", date: "Hier", status: "CLÔTURÉ", statusColor: "bg-indigo-100 text-indigo-700" },
-  ];
+  // recentActivities will be populated from API
+  const [stats, setStats] = useState({ usersCount: 0, offersCount: 0, submissionsCount: 0, documentsCount: 0, recentOffers: [] });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      try {
+        const data = await (await import('../../api/client')).getAdminStats();
+        if (!mounted) return;
+        setStats(data || {});
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  const recentActivities = (stats.recentOffers || []).map((o, i) => ({ id: i, ref: o._id || o.id, objet: o.title, client: '-', date: new Date(o.createdAt).toLocaleString(), status: o.status || 'OUVERT', statusColor: 'bg-green-100 text-green-700' }));
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">

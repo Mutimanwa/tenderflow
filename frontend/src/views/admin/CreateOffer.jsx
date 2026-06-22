@@ -1,5 +1,7 @@
 import  { useState } from 'react';
 import { Type, DollarSign, Calendar, ChevronDown, Share2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import useOffers from '../../hooks/useOffers';
 
 export default function CreateOffer() {
   const [formData, setFormData] = useState({
@@ -10,9 +12,19 @@ export default function CreateOffer() {
     sector: 'Construction & BTP'
   });
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const { createOffer, loading } = useOffers();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Nouvel appel d'offre publié :", formData);
+    try {
+      await createOffer(formData);
+      // after success, go back to offers list
+      navigate('/app/admin/offers');
+    } catch (err) {
+      console.error('Échec création offre', err);
+      alert(err?.body?.message || err.message || 'Erreur lors de la création');
+    }
   };
 
   return (
@@ -172,9 +184,10 @@ export default function CreateOffer() {
           <div className="space-y-3 pt-2">
             <button
               type="submit"
-              className="w-full bg-[#f97316] hover:bg-orange-600 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+              disabled={loading}
+              className="w-full bg-[#f97316] disabled:opacity-60 hover:bg-orange-600 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md"
             >
-              <Share2 className="w-4 h-4" /> Publier l'offre
+              <Share2 className="w-4 h-4" /> {loading ? 'Publication...' : "Publier l'offre"}
             </button>
             <button
               type="button"
