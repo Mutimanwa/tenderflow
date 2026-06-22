@@ -32,9 +32,11 @@ export default function Navbar() {
             <a href="/auth/signup">Se connecter</a>
           </button>
           <Button variant='primary' ><a href="/auth/login">S'inscrire</a></Button>
+          <a href="/auth/login">
           <Button variant='ghost' className="hidden lg:block border border-primary">
             Publier un Appel d'Offres
           </Button>
+          </a>
         </div>
       </div>
     </nav>

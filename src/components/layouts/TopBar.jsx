@@ -9,6 +9,7 @@ export default function Topbar({ userRole, setUserRole }) {
   };
 
   const currentUser = profileInfo[userRole];
+  setUserRole(userRole); // Assure que le rôle est défini pour les tests
 
   return (
     <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-40">
@@ -25,23 +26,6 @@ export default function Topbar({ userRole, setUserRole }) {
 
       {/* Actions à droite : Commutateur de test, Notification, Profil */}
       <div className="flex items-center gap-6 ml-auto">
-        
-        {/* COMMUTATEUR DE TEST (Pratique pour ton développement !) */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
-          <button 
-            onClick={() => setUserRole('fournisseur')}
-            className={`px-2 py-1 text-[10px] font-bold rounded ${userRole === 'fournisseur' ? 'bg-white text-secondary shadow-sm' : 'text-third'}`}
-          >
-            Daniel (Fourn.)
-          </button>
-          <button 
-            onClick={() => setUserRole('acheteur')}
-            className={`px-2 py-1 text-[10px] font-bold rounded ${userRole === 'acheteur' ? 'bg-white text-secondary shadow-sm' : 'text-third'}`}
-          >
-            Nelson (Admin)
-          </button>
-        </div>
-
         {/* Bouton de Notifications */}
 
         <div className="flex gap-3">
@@ -67,7 +51,6 @@ export default function Topbar({ userRole, setUserRole }) {
           </div>
           
         </div>
-
       </div>
     </header>
   );

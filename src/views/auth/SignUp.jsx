@@ -36,7 +36,6 @@ export default function SignUp() {
               Se connecter
             </Button>
             </a>
-     
     </div>
   );
 }
