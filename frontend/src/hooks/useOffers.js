@@ -78,5 +78,7 @@ export default function useOffers() {
     error,
     fetchOffers,
     createOffer,
+    updateOffer,
+    removeOffer,
   };
 }

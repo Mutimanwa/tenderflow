@@ -3,8 +3,25 @@ const Document = require('../models/Document');
 exports.list = async (req, res) => {
   try {
     if (req.user && req.user.role === 'admin') {
-      const docs = await Document.find().populate('owner');
-      return res.json(docs);
+    let query = {};
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (req.user.role !== 'admin') query.owner = req.user._id;
+
+    // populate owner so frontend can show owner name/email
+    const docs = await Document.find(query).sort({ createdAt: -1 }).populate('owner', 'name email');
+
+    const mapped = docs.map((d) => ({
+      _id: d._id,
+      filename: d.filename,
+      originalName: d.originalName,
+      size: d.size,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+      owner: d.owner ? d.owner._id : undefined,
+      ownerName: d.owner ? (d.owner.name || d.owner.email) : undefined,
+    }));
+
+    res.json(mapped);
     }
     const docs = await Document.find({ owner: req.user ? req.user._id : undefined });
     res.json(docs);
@@ -16,9 +33,26 @@ exports.list = async (req, res) => {
 exports.upload = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const doc = new Document({ filename: req.file.filename, originalName: req.file.originalname, owner: req.user ? req.user._id : undefined });
+    const doc = new Document({
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      owner: req.user ? req.user._id : null,
+      size: req.file.size,
+    });
     await doc.save();
-    res.status(201).json(doc);
+
+    // populate owner for response
+    await doc.populate('owner', 'name email').execPopulate();
+
+    res.json({
+      _id: doc._id,
+      filename: doc.filename,
+      originalName: doc.originalName,
+      size: doc.size,
+      createdAt: doc.createdAt,
+      owner: doc.owner ? doc.owner._id : undefined,
+      ownerName: doc.owner ? (doc.owner.name || doc.owner.email) : undefined,
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

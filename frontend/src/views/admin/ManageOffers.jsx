@@ -126,10 +126,11 @@ export default function ManageOffers() {
               {offersList.map((offer, index) => {
                 const id = offer._id || offer.id || index;
                 const title = offer.title || offer.name || 'Sans titre';
-                const category = offer.sector || offer.category || offer.type || '—';
-                const deadline = offer.deadline ? new Date(offer.deadline).toLocaleDateString() : (offer.deadline || '—');
+                const category = offer.sector || offer.category || offer.type || (offer.entity || '—');
+                const deadline = offer.timelineFormatted?.deadline || (offer.deadline ? new Date(offer.deadline).toLocaleDateString() : (offer.deadline || '—'));
                 const budget = offer.budget ? (typeof offer.budget === 'number' ? offer.budget.toLocaleString() + ' €' : offer.budget) : '—';
-                const status = offer.status || (offer.closed ? 'Fermé' : 'Ouvert');
+                const statusValue = String(offer.status || '').toLowerCase();
+                const status = statusValue === 'open' ? 'Ouvert' : statusValue === 'inprogress' || statusValue === 'inprogress' ? 'En révision' : statusValue === 'accepted' ? 'Accepté' : statusValue === 'closed' ? 'Fermé' : (offer.closed ? 'Fermé' : '—');
                 const isUrgent = offer.isUrgent || false;
                 const statusStyle = status === 'Ouvert' ? 'bg-green-50 text-green-700 border-green-200' : status === 'En révision' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-slate-100 text-slate-600 border-slate-200';
 

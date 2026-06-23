@@ -1,5 +1,6 @@
 import { SlidersHorizontal, Calendar, FileText, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 
 export default function AvailableTenders() {
@@ -15,6 +16,8 @@ export default function AvailableTenders() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const navigate = useNavigate();
 
   if (loading) return <div className="p-8 text-center">Chargement des offres...</div>;
 
@@ -59,7 +62,7 @@ export default function AvailableTenders() {
                 <div className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /><span>{new Date(item.deadline || item.date || Date.now()).toLocaleDateString()}</span></div>
                 <div className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" /><span>{item.docs || '0 Docs'}</span></div>
               </div>
-              <button className="w-full bg-blue-50/60 hover:bg-[#b45f06] text-blue-700 hover:text-white font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1">Voir détails <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" /></button>
+              <button onClick={() => navigate(`/app/client/offer/${item._id}`)} className="w-full bg-blue-50/60 hover:bg-[#b45f06] text-blue-700 hover:text-white font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1">Voir détails <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" /></button>
             </div>
           </div>
         ))}

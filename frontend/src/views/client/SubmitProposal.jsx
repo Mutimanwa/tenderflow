@@ -1,49 +1,88 @@
-import { Search, SlidersHorizontal, Download, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, SlidersHorizontal, Download, Calendar, ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/client';
 
 export default function MySubmissions() {
-  // Données extraites fidèlement de ta maquette Mes offres.png
-  const submissions = [
-    {
-      id: "TND-8829-XP",
-      title: "Réhabilitation Éco-Campus 2024",
-      date: "12 Oct. 2023",
-      budget: "450 000 €",
-      status: "EN ATTENTE",
-      statusClass: "bg-orange-50 text-orange-700 border-orange-100"
-    },
-    {
-      id: "TND-4412-SM",
-      title: "Fournitures Mobilier Smart Office",
-      date: "05 Oct. 2023",
-      budget: "82 500 €",
-      status: "ACCEPTÉE",
-      statusClass: "bg-green-50 text-green-700 border-green-100"
-    },
-    {
-      id: "TND-2900-LP",
-      title: "Rénovation Éclairage Public Ville de Lyon",
-      date: "28 Sept. 2023",
-      budget: "1 240 000 €",
-      status: "REFUSÉE",
-      statusClass: "bg-red-50 text-red-700 border-red-100"
-    },
-    {
-      id: "TND-7761-AT",
-      title: "Développement App Mobile Transport",
-      date: "15 Sept. 2023",
-      budget: "55 000 €",
-      status: "ACCEPTÉE",
-      statusClass: "bg-green-50 text-green-700 border-green-100"
-    },
-    {
-      id: "TND-9011-SP",
-      title: "Installation Panneaux Solaires Parking",
-      date: "10 Sept. 2023",
-      budget: "215 000 €",
-      status: "EN ATTENTE",
-      statusClass: "bg-orange-50 text-orange-700 border-orange-100"
+  const { token } = useAuth();
+  const navigate = useNavigate();
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // États pour la recherche, les filtres et la pagination
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // Nombre d'éléments par page
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      try {
+        const data = await api.getSubmissions(null, token);
+        if (!mounted) return;
+        // Ton backend renvoie directement le tableau d'objets peuplés
+        setSubmissions(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setSubmissions([]);
+      } finally { 
+        setLoading(false); 
+      }
     }
-  ];
+    load();
+    return () => { mounted = false; };
+  }, [token]);
+
+  // Formattage dynamique selon l'enum de ton modèle Mongoose Submission.js
+  const getStatusBadge = (status) => {
+    switch (String(status).toLowerCase()) {
+      case 'accepted':
+        return { label: 'ACCEPTÉE', style: 'bg-green-50 text-green-700 border-green-200' };
+      case 'rejected':
+        return { label: 'REFUSÉE', style: 'bg-red-50 text-red-700 border-red-200' };
+      case 'review':
+        return { label: 'EN EXAMEN', style: 'bg-blue-50 text-blue-700 border-blue-200' };
+      case 'pending':
+      default:
+        return { label: 'EN ATTENTE', style: 'bg-amber-50 text-amber-700 border-amber-200' };
+    }
+  };
+
+  // 1. Filtrage combiné (Recherche textuelle + Filtre de statut Mongoose)
+  const filteredSubmissions = submissions.filter(row => {
+    // Correspondance avec le titre de l'offre imbriquée ou l'ID de la soumission
+    const offerTitle = row.offer?.title || '';
+    const submissionId = row._id || '';
+    const offerLower = String(offerTitle).toLowerCase();
+    const submissionLower = String(submissionId).toLowerCase();
+    const queryLower = String(searchTerm || '').toLowerCase();
+    const matchesSearch = offerLower.includes(queryLower) || submissionLower.includes(queryLower);
+    
+    const matchesStatus = statusFilter === 'all' || String(row.status || '').toLowerCase() === String(statusFilter || '').toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // Pagination reset is handled inline in the input/select handlers to avoid unnecessary effect re-renders
+
+  // 2. Calculs mathématiques pour la pagination
+  const totalItems = filteredSubmissions.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  
+  // Tableau découpé correspondant uniquement à la page active
+  const currentItems = filteredSubmissions.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Génération de la liste des numéros de pages à afficher
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
@@ -75,22 +114,33 @@ export default function MySubmissions() {
         {/* Recherche par mot clé */}
         <div className="md:col-span-6 space-y-1.5">
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recherche</label>
-          <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus-within:border-orange-500 focus-within:bg-white transition-all">
+          <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus-within:border-amber-600 focus-within:bg-white transition-all">
             <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
             <input 
               type="text" 
-              placeholder="ID, Titre, ou Mots-clés..." 
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              placeholder="Rechercher par ID ou titre de l'offre..." 
               className="w-full bg-transparent border-none outline-none text-xs text-slate-700 placeholder:text-slate-400"
             />
           </div>
         </div>
 
-        {/* Filtre de Statut */}
+        {/* Filtre de Statut (Connecté à ton énumération Submission) */}
         <div className="md:col-span-3 space-y-1.5">
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Statut</label>
-          <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-slate-100/50 transition-colors">
-            <span className="w-full text-xs font-semibold text-slate-700">Tous les statuts</span>
-            <ChevronDown className="w-4 h-4 text-slate-400 ml-2" />
+          <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-0.5">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full bg-transparent border-none outline-none text-xs font-semibold text-slate-700 py-1.5 cursor-pointer"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="pending">En attente (Pending)</option>
+              <option value="review">En examen (Review)</option>
+              <option value="accepted">Acceptées (Accepted)</option>
+              <option value="rejected">Refusées (Rejected)</option>
+            </select>
           </div>
         </div>
 
@@ -99,7 +149,7 @@ export default function MySubmissions() {
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Période</label>
           <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-slate-100/50 transition-colors">
             <Calendar className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
-            <span className="w-full text-xs font-semibold text-slate-700">Derniers 30 jours</span>
+            <span className="w-full text-xs font-semibold text-slate-700">Tous les dépôts</span>
           </div>
         </div>
       </div>
@@ -118,54 +168,108 @@ export default function MySubmissions() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-              {submissions.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/40 transition-colors group">
-                  {/* Titre et ID */}
-                  <td className="py-4 px-6 max-w-xs sm:max-w-md">
-                    <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-[#b45f06] transition-colors">
-                      {row.title}
-                    </h4>
-                    <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">{row.id}</span>
-                  </td>
-                  {/* Date */}
-                  <td className="py-4 px-6 text-slate-500 font-semibold">{row.date}</td>
-                  {/* Budget */}
-                  <td className="py-4 px-6 font-bold text-slate-900">{row.budget}</td>
-                  {/* Statut avec Badge */}
-                  <td className="py-4 px-6">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[9px] font-bold tracking-wider ${row.statusClass}`}>
-                      {row.status}
-                    </span>
-                  </td>
-                  {/* Action */}
-                  <td className="py-4 px-6 text-right">
-                    <button className="text-xs font-bold text-[#b45f06] hover:underline">
-                      Voir détails
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {loading && (
+                <tr><td colSpan={5} className="py-10 text-center text-slate-400 font-semibold">Chargement des soumissions…</td></tr>
+              )}
+              
+              {!loading && currentItems.length === 0 && (
+                <tr><td colSpan={5} className="py-10 text-center text-slate-400 font-semibold">Aucune soumission trouvée.</td></tr>
+              )}
+
+              {!loading && currentItems.map((row, idx) => {
+                const statusDetails = getStatusBadge(row.status);
+                return (
+                  <tr key={row._id || idx} className="hover:bg-slate-50/40 transition-colors group">
+                    {/* Titre de l'offre liée via .populate('offer') */}
+                    <td className="py-4 px-6 max-w-xs sm:max-w-md">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                          <Briefcase className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-[#b45f06] transition-colors">
+                            {row.offer?.title || 'Offre supprimée ou indisponible'}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">ID Soumission: {row._id}</span>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    {/* Date */}
+                    <td className="py-4 px-6 text-slate-500 font-semibold">
+                      {row.createdAt ? new Date(row.createdAt).toLocaleDateString('fr-FR', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      }) : '—'}
+                    </td>
+                    
+                    {/* Budget */}
+                    <td className="py-4 px-6 font-bold text-slate-900">
+                      {row.amount ? `${row.amount}` : '—'}
+                    </td>
+                    
+                    {/* Statut avec Badge synchronisé */}
+                    <td className="py-4 px-6">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-extrabold tracking-wider ${statusDetails.style}`}>
+                        {statusDetails.label}
+                      </span>
+                    </td>
+                    
+                    {/* Action */}
+                    <td className="py-4 px-6 text-right">
+                      <button onClick={() => navigate(`/app/client/submissions/${row._id}`)} className="text-xs font-bold text-[#b45f06] hover:underline">
+                        Voir détails
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        {/* Barre de Pagination */}
-        <div className="border-t border-slate-100 px-6 py-4 flex items-center justify-between text-xs text-slate-400 font-semibold bg-slate-50/20">
-          <span>Affichage de 1-5 sur 24 soumissions</span>
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg border border-slate-100 bg-white text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-50" disabled>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-            <button className="w-7 h-7 rounded-lg bg-amber-900 text-white font-bold flex items-center justify-center text-xs">1</button>
-            <button className="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center text-xs transition-colors">2</button>
-            <button className="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center text-xs transition-colors">3</button>
-            <span className="px-1 text-slate-300">...</span>
-            <button className="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center text-xs transition-colors">12</button>
-            <button className="p-1.5 rounded-lg border border-slate-100 bg-white text-slate-400 hover:text-slate-700 transition-colors">
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+        {/* Barre de Pagination Active Dynamique */}
+        {totalPages > 0 && (
+          <div className="border-t border-slate-100 px-6 py-4 flex items-center justify-between text-xs text-slate-400 font-semibold bg-slate-50/20">
+            <span>
+              Affichage de {totalItems === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} sur {totalItems} soumission(s)
+            </span>
+            
+            <div className="flex items-center gap-1">
+              {/* Bouton Précédent */}
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-slate-100 bg-white text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              
+              {/* Numéros de page dynamiques */}
+              {pageNumbers.map(number => (
+                <button
+                  key={number}
+                  onClick={() => setCurrentPage(number)}
+                  className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center text-xs transition-colors ${
+                    currentPage === number 
+                      ? 'bg-amber-800 text-white shadow-sm' 
+                      : 'hover:bg-slate-100 text-slate-600'
+                  }`}
+                >
+                  {number}
+                </button>
+              ))}
+
+              {/* Bouton Suivant */}
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-slate-100 bg-white text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
     </div>

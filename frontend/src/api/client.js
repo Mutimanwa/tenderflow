@@ -67,6 +67,12 @@ export async function deleteOffer(id, token) {
 }
 
 export async function uploadDocument(file, token) {
+  if (!token) {
+    const err = new Error('No token provided');
+    err.status = 401;
+    throw err;
+  }
+
   const fd = new FormData();
   fd.append('file', file);
   const res = await fetch(`${API_URL}/api/documents/upload`, {
