@@ -1,6 +1,6 @@
-import { 
+import {
   MapPin, Building2, Mail, HelpCircle, ArrowLeft,
-   FileText, CheckCircle2, Download, Send, Star, Share2, Clock 
+  FileText, CheckCircle2, Download, Send, Star, Share2, Clock
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -53,7 +53,7 @@ export default function TenderDetails({ onBack }) {
 
   // Configuration du badge de statut basé sur l'enum de ton modèle Mongoose
   const getStatusConfig = (status) => {
-    switch(status) {
+    switch (status) {
       case 'open':
         return { label: 'Ouvert', style: 'bg-green-50 text-green-700 border-green-200 ring-green-500' };
       case 'inProgress':
@@ -70,22 +70,22 @@ export default function TenderDetails({ onBack }) {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 px-4 sm:px-6">
-      
+
       {/* Fil d'Ariane / Bouton Retour */}
-      <button 
+      <button
         onClick={onBack || (() => navigate(-1))}
         className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors group"
       >
-        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> 
+        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
         Retour aux appels d'offres
       </button>
 
       {/* GRILLE PRINCIPALE (Ajustée à la maquette) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        
+
         {/* COLONNE GAUCHE : Contenu principal de l'appel d'offres */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* En-tête des informations */}
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2.5">
@@ -104,7 +104,7 @@ export default function TenderDetails({ onBack }) {
             <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
               {offer.title}
             </h1>
-            
+
             <p className="text-sm text-slate-500 leading-relaxed font-medium">
               Mise à jour complète des infrastructures et déploiement stratégique sur les zones désignées.
             </p>
@@ -174,11 +174,14 @@ export default function TenderDetails({ onBack }) {
 
         {/* COLONNE DROITE : Actions & Informations complémentaires (Sidebar) */}
         <div className="space-y-6 lg:col-span-1">
-          
+
           {/* Bloc d'actions principal */}
           <div className="space-y-2.5">
-            <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-orange-500/10 group active:scale-[0.98]">
-              <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" /> 
+            <button
+              onClick={() => navigate(`/app/client/new-submission/${offer._id}`, { state: { offerId: offer._id } })}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#f97316] hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-orange-500/10 group active:scale-[0.98]"
+            >
+              <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               Soumettre une proposition
             </button>
             <div className="grid grid-cols-2 gap-2">
@@ -235,16 +238,16 @@ export default function TenderDetails({ onBack }) {
           {/* Lieu d'exécution & Données Client */}
           <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
             <div className="rounded-xl overflow-hidden h-28 bg-slate-800 relative group">
-              <img 
-                src="https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&w=400&q=80" 
-                alt="Maquette Ville" 
-                className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" 
+              <img
+                src="https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&w=400&q=80"
+                alt="Maquette Ville"
+                className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] text-white font-bold flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-orange-400" /> {offer.location || 'Burundi'}
               </div>
             </div>
-            
+
             <div className="space-y-2.5 text-xs font-semibold text-slate-600">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-slate-400 shrink-0" />

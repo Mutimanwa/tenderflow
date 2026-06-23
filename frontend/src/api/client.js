@@ -121,6 +121,19 @@ export async function deleteSubmission(id, token) {
   });
 }
 
+export async function updateSubmission(id, data, token) {
+  return request(`/api/submissions/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeader(token) },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateSubmissionStatus(id, data, token) {
+  // convenience wrapper specifically for status updates
+  return updateSubmission(id, data, token);
+}
+
 export async function getUsers(token) {
   return request('/api/users', { headers: { ...authHeader(token) } });
 }
@@ -170,6 +183,8 @@ const client = {
   getSubmissions,
   createSubmission,
   deleteSubmission,
+  updateSubmission,
+  updateSubmissionStatus,
   getUsers,
   getUser,
   updateUser,

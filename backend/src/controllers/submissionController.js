@@ -48,6 +48,32 @@ exports.get = async (req, res) => {
   }
 };
 
+exports.update = async (req, res) => {
+  try {
+    const submission = await Submission.findById(req.params.id);
+    if (!submission) return res.status(404).json({ message: 'Submission not found' });
+
+    // only admin can change status; owner can update limited fields if needed
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    const allowedAdmin = req.user.role === 'admin';
+
+    // process allowed fields
+    const updates = {};
+    if (typeof req.body.status !== 'undefined' && allowedAdmin) updates.status = req.body.status;
+    if (typeof req.body.amount !== 'undefined') updates.amount = req.body.amount;
+    if (typeof req.body.message !== 'undefined') updates.message = req.body.message;
+    if (typeof req.body.files !== 'undefined') updates.files = req.body.files;
+
+    Object.assign(submission, updates);
+    await submission.save();
+    const populated = await Submission.findById(submission._id).populate('user').populate('offer');
+    res.json(populated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 exports.remove = async (req, res) => {
   try {
     const submission = await Submission.findById(req.params.id);

@@ -10,22 +10,42 @@ export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { token, user } = useAuth();
+  const { token } = useAuth();
 
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.getUsers();
+      const data = await api.getUsers(token);
       setUsers(Array.isArray(data) ? data : (data.users || []));
     } catch (err) {
+      console.error('Failed loading users', err);
       setError(err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(()=>{ load(); }, []);
+  useEffect(()=>{
+    let mounted = true;
+    const doLoad = async () => {
+      if (!mounted) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await api.getUsers(token);
+        if (!mounted) return;
+        setUsers(Array.isArray(data) ? data : (data.users || []));
+      } catch (err) {
+        console.error('Failed loading users', err);
+        if (mounted) setError(err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    doLoad();
+    return () => { mounted = false; };
+  }, [token]);
 
   // Action pour modifier le statut d'un utilisateur
   const toggleUserStatus = async (id, currentStatus) => {
