@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ShieldCheck, UserMinus, UserCheck, Mail, Shield, Building2, Trash2 } from 'lucide-react';
 import api from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -26,7 +26,7 @@ export default function ManageUsers() {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     let mounted = true;
     const doLoad = async () => {
       if (!mounted) return;
@@ -64,7 +64,7 @@ export default function ManageUsers() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* En-tête de la page */}
       <div>
         <h1 className="text-2xl font-extrabold text-secondary tracking-tight">
@@ -107,11 +107,11 @@ export default function ManageUsers() {
               {error && <tr><td colSpan={5} className="py-6 text-center text-red-600">Erreur</td></tr>}
               {filteredUsers.map((user) => (
                 <tr key={user._id || user.id} className="hover:bg-slate-50/40 transition-colors group">
-                  
+
                   {/* Utilisateur & Email */}
                   <td className="py-4 px-6">
                     <div className="font-bold text-secondary text-sm">{user.name}</div>
-                      <div className="text-[10px] font-medium text-third/70 mt-0.5 flex items-center gap-1">
+                    <div className="text-[10px] font-medium text-third/70 mt-0.5 flex items-center gap-1">
                       <Mail className="w-3 h-3" /> {user.email}
                     </div>
                   </td>
@@ -125,10 +125,13 @@ export default function ManageUsers() {
                   </td>
 
                   {/* Rôle */}
-                    <td className="py-4 px-4 font-medium text-third">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] ${
-                      (user.role || '').toLowerCase() === 'buyer' || (user.role==='Acheteur') ? 'bg-blue-50 text-secondary' : 'bg-orange-50 text-primary'
-                    }`}>
+                  <td className="py-4 px-4 font-medium text-third">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] ${(user.role || '').toLowerCase() === 'admin'
+                        ? 'bg-purple-50 text-purple-700'
+                        : (user.role || '').toLowerCase() === 'buyer'
+                          ? 'bg-blue-50 text-secondary'
+                          : 'bg-orange-50 text-primary'
+                      }`}>
                       <Shield className="w-2.5 h-2.5" /> {user.role || '—'}
                     </span>
                   </td>
@@ -141,30 +144,46 @@ export default function ManageUsers() {
                   </td>
 
                   {/* Actions de contrôle directes */}
-                    <td className="py-4 px-6 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      {user.status === 'pending' || user.status === 'En attente' ? (
+                  <td className="py-4 px-6 text-center">
+                    {(user.role || '').toLowerCase() === 'admin' ? (
+                      /* Les admins sont protégés — aucune action possible */
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 border border-purple-100 text-purple-500 rounded-lg text-[10px] font-bold">
+                        <ShieldCheck className="w-3 h-3" /> Protégé
+                      </span>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        {user.status === 'pending' || user.status === 'En attente' ? (
+                          <button
+                            onClick={() => toggleUserStatus(user._id || user.id, 'pending')}
+                            className="bg-primary text-white font-bold px-3 py-1.5 rounded-lg text-[10px] hover:bg-primary-hover transition-all flex items-center gap-1"
+                          >
+                            <ShieldCheck className="w-3 h-3" /> Approuver
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => toggleUserStatus(user._id || user.id, user.status)}
+                            className={`p-2 rounded-xl transition-all ${(user.status === 'active' || user.status === 'Actif')
+                                ? 'text-rose-500 hover:bg-rose-50'
+                                : 'text-emerald-600 hover:bg-emerald-50'
+                              }`}
+                            title={(user.status === 'active' || user.status === 'Actif') ? "Suspendre l'accès" : "Réactiver l'accès"}
+                          >
+                            {(user.status === 'active' || user.status === 'Actif') ? <UserMinus className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                          </button>
+                        )}
                         <button
-                          onClick={() => toggleUserStatus(user._id || user.id, 'pending')}
-                          className="bg-primary text-white font-bold px-3 py-1.5 rounded-lg text-[10px] hover:bg-primary-hover transition-all flex items-center gap-1"
+                          onClick={async () => {
+                            if (!window.confirm('Supprimer cet utilisateur ?')) return;
+                            try { await api.deleteUser(user._id || user.id, token); await load(); }
+                            catch (e) { console.error(e); alert('Erreur lors de la suppression.'); }
+                          }}
+                          className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors"
+                          title="Supprimer"
                         >
-                          <ShieldCheck className="w-3 h-3" /> Approuver
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => toggleUserStatus(user._id || user.id, user.status)}
-                          className={`p-2 rounded-xl transition-all ${
-                            (user.status === 'active' || user.status === 'Actif')
-                              ? 'text-rose-500 hover:bg-rose-50'
-                              : 'text-emerald-600 hover:bg-emerald-50'
-                          }`}
-                          title={(user.status === 'active' || user.status === 'Actif') ? "Suspendre l'accès" : "Réactiver l'accès"}
-                        >
-                          {(user.status === 'active' || user.status === 'Actif') ? <UserMinus className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                        </button>
-                      )}
-                      <button onClick={async ()=>{ if(!window.confirm('Supprimer cet utilisateur ?')) return; try{ await api.deleteUser(user._id || user.id, token); await load(); }catch(e){ console.error(e); alert('Erreur'); } }} className="p-2 rounded-xl text-rose-500 hover:bg-rose-50" title="Supprimer"><Trash2 className="w-4 h-4"/></button>
-                    </div>
+                      </div>
+                    )}
                   </td>
 
                 </tr>

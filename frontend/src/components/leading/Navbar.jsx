@@ -29,9 +29,9 @@ export default function Navbar() {
         {/* Boutons Actions */}
         <div className="flex items-center gap-4">
           <button className="text-sm font-semibold text-secondary hover:text-primary transition-colors">
-            <a href="/auth/signup">Se connecter</a>
+            <a href="/auth/login">Se connecter</a>
           </button>
-          <Button variant='primary' ><a href="/auth/login">S'inscrire</a></Button>
+          <Button variant='primary' ><a href="/auth/signup">S'inscrire</a></Button>
           <a href="/auth/login">
           <Button variant='ghost' className="hidden lg:block border border-primary">
             Publier un Appel d'Offres

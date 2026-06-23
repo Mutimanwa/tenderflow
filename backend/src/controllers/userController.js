@@ -30,8 +30,13 @@ exports.update = async (req, res) => {
   try {
     const id = req.params.id;
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-    // only admin or owner
+    // only admin or owner can update
     if (req.user.role !== 'admin' && req.user._id.toString() !== id) return res.status(403).json({ message: 'Forbidden' });
+    // prevent modifying an admin account (except by itself)
+    const target = await User.findById(id).select('role');
+    if (target && target.role === 'admin' && req.user._id.toString() !== id) {
+      return res.status(403).json({ message: 'Impossible de modifier un compte administrateur.' });
+    }
     const payload = { ...req.body };
     // prevent changing password directly here; handle separately
     if (payload.password) delete payload.password;
@@ -47,8 +52,13 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    // protect admin accounts from deletion
+    const target = await User.findById(req.params.id).select('role');
+    if (!target) return res.status(404).json({ message: 'User not found' });
+    if (target.role === 'admin') {
+      return res.status(403).json({ message: 'Impossible de supprimer un compte administrateur.' });
+    }
+    await target.deleteOne();
     res.json({ message: 'User deleted' });
   } catch (err) {
     console.error(err);

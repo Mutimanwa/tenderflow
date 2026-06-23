@@ -2,12 +2,11 @@ const Document = require('../models/Document');
 
 exports.list = async (req, res) => {
   try {
-    if (req.user && req.user.role === 'admin') {
-    let query = {};
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-    if (req.user.role !== 'admin') query.owner = req.user._id;
 
-    // populate owner so frontend can show owner name/email
+    // Admin voit tous les documents, le fournisseur voit seulement les siens
+    const query = req.user.role === 'admin' ? {} : { owner: req.user._id };
+
     const docs = await Document.find(query).sort({ createdAt: -1 }).populate('owner', 'name email');
 
     const mapped = docs.map((d) => ({
@@ -22,9 +21,6 @@ exports.list = async (req, res) => {
     }));
 
     res.json(mapped);
-    }
-    const docs = await Document.find({ owner: req.user ? req.user._id : undefined });
-    res.json(docs);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -41,8 +37,8 @@ exports.upload = async (req, res) => {
     });
     await doc.save();
 
-    // populate owner for response
-    await doc.populate('owner', 'name email').execPopulate();
+    // populate owner for response (Mongoose v7+: no execPopulate needed)
+    await doc.populate('owner', 'name email');
 
     res.json({
       _id: doc._id,
