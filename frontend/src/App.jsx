@@ -21,6 +21,7 @@ import SubmitProposal from './views/client/SubmitProposal';
 import MyDocuments from './views/client/MyDocuments';
 import ProfileSettings from './views/client/ProfileSettings';
 import NewSubmission from './views/client/NewSubmission';
+import SubmissionDetails from './views/admin/SubmissionDetails';
 
 function App() {
   return (
@@ -40,12 +41,14 @@ function App() {
           <Route path="admin/new-offer" element={<CreateOffer />} />
           <Route path="admin/edit-offer/:id" element={<EditOffer />} />
           <Route path="admin/submissions" element={<SubmissionsList />} />
+           <Route path="admin/submissions/:id" element={<SubmissionDetails />} />
           <Route path="admin/users" element={<UsersManagement />} />
           <Route path="admin/settings" element={<Settings />} />
           <Route path="client/dashboard" element={<DashboardClient />} />
           <Route path="client/offers" element={<AvailableOffers />} />
           <Route path="client/offer/:id" element={<OfferDetails />} />
           <Route path="client/submissions" element={<SubmitProposal />} />
+          <Route path="client/submissions/:id" element={<SubmissionDetails />} />
           <Route path="client/documents" element={<MyDocuments />} />
           <Route path="client/new-submission/:offerId?" element={<NewSubmission />} />
           <Route path="profile" element={<ProfileSettings />} />

@@ -26,7 +26,6 @@ export default function AppLayout() {
             <Outlet context={[userRole]} />
           </div>
         </main>
-
       </div>
     </div>
   );

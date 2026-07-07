@@ -1,22 +1,29 @@
 import {
-  Layers, Clock, CheckCircle, XCircle, SlidersHorizontal,
-  Download, Eye, ChevronLeft, ChevronRight, TrendingUp, Trash2, Loader2, MoreVertical
+  Layers, Clock, CheckCircle, XCircle, Eye, ChevronLeft, ChevronRight, Trash2, Loader2, MoreVertical, Search
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import api from '../../api/client';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ManageSubmissions() {
+  const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeDropdown, setActiveDropdown] = useState(null); // Stocke l'ID de la ligne dont le menu est ouvert
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  
+  // ✅ État pour les filtres et la pagination
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
   const { token } = useAuth();
 
-  // --- GESTION PROFESSIONNELLE ET PROPRE DU CLIC EXTÉRIEUR ---
+  // Gestion du clic extérieur pour les dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
-      // Si le clic est en dehors de n'importe quel bloc d'action de dropdown, on ferme tout
       if (!event.target.closest('.dropdown-actions-container')) {
         setActiveDropdown(null);
       }
@@ -71,6 +78,48 @@ export default function ManageSubmissions() {
     }
   };
 
+  // ✅ Filtrage dynamique
+  const filteredSubmissions = submissions.filter(sub => {
+    // Filtre par statut
+    if (statusFilter !== 'all' && sub.status !== statusFilter) return false;
+    
+    // Filtre par recherche (titre de l'offre ou nom du soumissionnaire)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const offerTitle = (sub.offer?.title || '').toLowerCase();
+      const userName = (sub.user?.name || '').toLowerCase();
+      const userEmail = (sub.user?.email || '').toLowerCase();
+      return offerTitle.includes(term) || userName.includes(term) || userEmail.includes(term);
+    }
+    
+    return true;
+  });
+
+  // ✅ Pagination dynamique
+  const totalItems = filteredSubmissions.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const paginatedSubmissions = filteredSubmissions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  // ✅ KPIs dynamiques
   const totalCount = submissions.length;
   const reviewCount = submissions.filter(s => s.status === 'pending' || s.status === 'review').length;
   const acceptedCount = submissions.filter(s => s.status === 'accepted').length;
@@ -78,16 +127,11 @@ export default function ManageSubmissions() {
 
   const getStatusDetails = (status) => {
     switch (status) {
-      case 'pending':
-        return { text: 'En attente', style: 'bg-amber-50 text-amber-700 border-amber-100/70' };
-      case 'review':
-        return { text: 'En révision', style: 'bg-blue-50 text-blue-700 border-blue-100/70' };
-      case 'accepted':
-        return { text: 'Acceptée', style: 'bg-emerald-50 text-emerald-700 border-emerald-100/70' };
-      case 'rejected':
-        return { text: 'Refusée', style: 'bg-rose-50 text-rose-700 border-rose-100/70' };
-      default:
-        return { text: status || 'Inconnu', style: 'bg-slate-50 text-slate-600 border-slate-200' };
+      case 'pending': return { text: 'En attente', style: 'bg-amber-50 text-amber-700 border-amber-100/70' };
+      case 'review': return { text: 'En révision', style: 'bg-blue-50 text-blue-700 border-blue-100/70' };
+      case 'accepted': return { text: 'Acceptée', style: 'bg-emerald-50 text-emerald-700 border-emerald-100/70' };
+      case 'rejected': return { text: 'Refusée', style: 'bg-rose-50 text-rose-700 border-rose-100/70' };
+      default: return { text: status || 'Inconnu', style: 'bg-slate-50 text-slate-600 border-slate-200' };
     }
   };
 
@@ -114,7 +158,7 @@ export default function ManageSubmissions() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10 px-4">
-      {/* En-tête de page */}
+      {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
@@ -122,25 +166,20 @@ export default function ManageSubmissions() {
             <span className="text-slate-300">/</span>
             <span className="text-[#b45f06] font-semibold">Gestion des Soumissions</span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Gestion des Soumissions
-          </h1>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Gestion des Soumissions</h1>
           <p className="text-xs text-slate-500 mt-0.5 font-medium">
             Consultez et gérez les propositions reçues en temps réel pour l'ensemble des appels d'offres.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm">
-            <SlidersHorizontal className="w-3.5 h-3.5" /> Filtrer
-          </button>
+        {/* <div className="flex items-center gap-2 self-start sm:self-auto">
           <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm">
             <Download className="w-3.5 h-3.5" /> Exporter CSV
           </button>
-        </div>
+        </div> */}
       </div>
 
-      {/* Blocs KPI Supérieurs */}
+      {/* ✅ KPIs dynamiques */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm relative">
           <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-700 flex items-center justify-center mb-2 border border-orange-100/40">
@@ -154,7 +193,7 @@ export default function ManageSubmissions() {
           <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center mb-2 border border-blue-100/40">
             <Clock className="w-4 h-4" />
           </div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">À réviser / Attente</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">À réviser</p>
           <h2 className="text-xl font-black text-slate-900 mt-0.5">{loading ? '...' : reviewCount}</h2>
         </div>
 
@@ -175,9 +214,72 @@ export default function ManageSubmissions() {
         </div>
       </div>
 
-      {/* Tableau Principal */}
+      {/* ✅ Barre de recherche et filtres fonctionnels */}
+      <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-orange-500 w-full sm:w-40"
+            />
+          </div>
+          
+          <div className="flex items-center gap-1.5 ml-2">
+            <button
+              onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                statusFilter === 'all' ? 'bg-orange-100 text-[#b45f06]' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              Tous
+            </button>
+            <button
+              onClick={() => { setStatusFilter('pending'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                statusFilter === 'pending' ? 'bg-orange-100 text-[#b45f06]' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              En attente
+            </button>
+            <button
+              onClick={() => { setStatusFilter('review'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                statusFilter === 'review' ? 'bg-orange-100 text-[#b45f06]' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              En révision
+            </button>
+            <button
+              onClick={() => { setStatusFilter('accepted'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                statusFilter === 'accepted' ? 'bg-orange-100 text-[#b45f06]' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              Acceptées
+            </button>
+            <button
+              onClick={() => { setStatusFilter('rejected'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                statusFilter === 'rejected' ? 'bg-orange-100 text-[#b45f06]' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              Refusées
+            </button>
+          </div>
+        </div>
+        
+        <span className="text-xs font-medium text-slate-400 self-end sm:self-auto">
+          Affichage de {totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-
+          {Math.min(currentPage * itemsPerPage, totalItems)} sur {totalItems} résultats
+        </span>
+      </div>
+
+      {/* ✅ Tableau avec pagination dynamique */}
       <div className="bg-white border border-slate-100 rounded-2xl shadow-sm">
-        {/* CORRECTIF 1 : Ajout d'une hauteur minimale (min-h-[260px]) pour éviter le rognage vertical */}
         <div className="overflow-x-auto min-h-[260px]">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -206,25 +308,25 @@ export default function ManageSubmissions() {
                     Une erreur est survenue lors du chargement des données.
                   </td>
                 </tr>
-              ) : submissions.length === 0 ? (
+              ) : paginatedSubmissions.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="py-12 text-center text-slate-400">
-                    Aucune soumission enregistrée pour le moment.
+                    {searchTerm || statusFilter !== 'all' 
+                      ? 'Aucune soumission ne correspond aux filtres appliqués.'
+                      : 'Aucune soumission enregistrée pour le moment.'}
                   </td>
                 </tr>
               ) : (
-                submissions.map((sub) => {
+                paginatedSubmissions.map((sub) => {
                   const subId = sub._id || sub.id;
                   const userName = sub.user?.name || 'Utilisateur inconnu';
                   const userEmail = sub.user?.email || '';
                   const offerTitle = sub.offer?.title || 'Marché indisponible';
-                  const offerCategory = sub.offer?.category || 'Secteur Général';
                   const avatar = getAvatarConfig(userName);
                   const statusInfo = getStatusDetails(sub.status);
                   const isDropdownOpen = activeDropdown === subId;
 
                   return (
-                    /* CORRECTIF 2 : Elévation dynamique du z-index (relative z-30) uniquement sur la ligne active */
                     <tr 
                       key={subId} 
                       className={`hover:bg-slate-50/40 transition-colors group ${isDropdownOpen ? 'relative z-30 bg-slate-50/80' : ''}`}
@@ -243,7 +345,9 @@ export default function ManageSubmissions() {
 
                       <td className="py-4 px-4 max-w-xs">
                         <h5 className="font-bold text-slate-700 truncate" title={offerTitle}>{offerTitle}</h5>
-                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{offerCategory}</p>
+                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                          {sub.offer?.contractType || sub.offer?.category || 'Général'}
+                        </p>
                       </td>
 
                       <td className="py-4 px-4 text-center font-black text-slate-800">
@@ -262,14 +366,14 @@ export default function ManageSubmissions() {
 
                       <td className="py-4 px-6 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <button
+                          <button 
+                            onClick={() => navigate(`/app/admin/submissions/${subId}`)}
                             className="p-1.5 text-slate-400 hover:text-[#b45f06] hover:bg-slate-50 rounded-lg transition-colors"
                             title="Voir les détails"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
 
-                          {/* CORRECTIF 3 : Utilisation de la classe 'dropdown-actions-container' pour le clic extérieur */}
                           <div className="relative dropdown-actions-container">
                             <button
                               onClick={() => setActiveDropdown(isDropdownOpen ? null : subId)}
@@ -279,41 +383,39 @@ export default function ManageSubmissions() {
                               <MoreVertical className="w-4 h-4" />
                             </button>
 
-                            {/* Boîte de choix de statut flottante */}
                             {isDropdownOpen && (
-                              /* Ajout d'un mt-1 et ombre portée prononcée pour l'esthétique */
-                              <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-100 rounded-xl shadow-xl z-50 py-1 text-left animate-in fade-in slide-in-from-top-1 duration-150">
+                              <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-100 rounded-xl shadow-xl z-50 py-1 text-left">
                                 <div className="px-3 py-1.5 text-[9px] font-black text-slate-400 uppercase tracking-wider border-b border-slate-50">
                                   Changer le statut
                                 </div>
                                 <button
                                   onClick={() => handleStatusChange(subId, 'pending')}
-                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left"
+                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left text-xs"
                                 >
                                   <div className="w-2 h-2 rounded-full bg-amber-500" /> En attente
                                 </button>
                                 <button
                                   onClick={() => handleStatusChange(subId, 'review')}
-                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left"
+                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left text-xs"
                                 >
                                   <div className="w-2 h-2 rounded-full bg-blue-500" /> En révision
                                 </button>
                                 <button
                                   onClick={() => handleStatusChange(subId, 'accepted')}
-                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left"
+                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left text-xs"
                                 >
                                   <div className="w-2 h-2 rounded-full bg-emerald-500" /> Accepter l'offre
                                 </button>
                                 <button
                                   onClick={() => handleStatusChange(subId, 'rejected')}
-                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left"
+                                  className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 font-bold flex items-center gap-2 text-left text-xs"
                                 >
                                   <div className="w-2 h-2 rounded-full bg-rose-500" /> Refuser l'offre
                                 </button>
                                 <div className="border-t border-slate-100 my-1"></div>
                                 <button
                                   onClick={() => handleDelete(subId)}
-                                  className="w-full px-3 py-2 text-rose-600 hover:bg-rose-50 font-black flex items-center gap-2 text-left"
+                                  className="w-full px-3 py-2 text-rose-600 hover:bg-rose-50 font-black flex items-center gap-2 text-left text-xs"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" /> Supprimer
                                 </button>
@@ -328,20 +430,43 @@ export default function ManageSubmissions() {
               )}
             </tbody>
           </table>
-          {/* Pagination */}
+        </div>
+        
+        {/* ✅ Pagination dynamique */}
+        {totalPages > 1 && (
           <div className="bg-slate-50/30 border-t border-slate-100 p-4 flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span>Affichage de 1 à {submissions.length} sur {totalCount} résultats</span>
+            <span>Affichage de 1 à {Math.min(itemsPerPage, totalItems)} sur {totalItems} résultats</span>
             <div className="flex items-center gap-1">
-              <button className="p-1 hover:text-slate-800 transition-colors disabled:opacity-40" disabled>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="w-6 h-6 bg-[#b45f06] text-white font-bold flex items-center justify-center rounded-md shadow-sm">1</span>
-              <button className="p-1 hover:text-slate-800 transition-colors disabled:opacity-40" disabled>
+              {getPageNumbers().map(num => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md font-bold transition-colors ${
+                    currentPage === num 
+                      ? 'bg-[#b45f06] text-white shadow-sm' 
+                      : 'hover:bg-slate-200'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-1 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Section Basse d'Analyses */}
@@ -350,7 +475,8 @@ export default function ManageSubmissions() {
           <div className="space-y-3 max-w-xl">
             <h3 className="font-black text-xs text-slate-400 uppercase tracking-wider">Analyse comparative des coûts</h3>
             <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-              L'écart moyen constaté entre les propositions financières pour les marchés récents s'équilibre. Nous recommandons de valider en priorité les dossiers complets contenant des garanties de livraison claires et des scores de conformité validés.
+              L'écart moyen constaté entre les propositions financières pour les marchés récents s'équilibre. 
+              Nous recommandons de valider en priorité les dossiers complets contenant des garanties de livraison claires.
             </p>
           </div>
 
@@ -366,10 +492,6 @@ export default function ManageSubmissions() {
               <p className="text-sm font-black text-amber-600 mt-0.5">{reviewCount} en attente</p>
             </div>
           </div>
-
-          <div className="absolute bottom-4 right-6 text-slate-100/70 pointer-events-none hidden sm:block">
-            <TrendingUp className="w-20 h-20 stroke-[1]" />
-          </div>
         </div>
 
         <div className="lg:col-span-4 bg-[#964f05] rounded-2xl p-6 text-white shadow-lg flex flex-col justify-between">
@@ -379,7 +501,6 @@ export default function ManageSubmissions() {
               Générez automatiquement un document de synthèse complet contenant les statistiques clés de toutes les soumissions validées ce mois-ci.
             </p>
           </div>
-
           <button className="w-full bg-white hover:bg-slate-50 text-[#b45f06] font-black py-2.5 px-4 rounded-xl text-xs transition-all mt-6 shadow-sm text-center">
             Télécharger la synthèse PDF
           </button>

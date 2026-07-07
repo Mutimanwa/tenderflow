@@ -169,6 +169,13 @@ export async function getAdminStats(token) {
   return request('/api/admin/stats', { headers: { ...authHeader(token) } });
 }
 
+export async function getSubmission(id, token) {
+  return request(`/api/submissions/${id}`, { 
+    headers: { ...authHeader(token) } 
+  });
+}
+
+
 const client = {
   login,
   register,
@@ -181,6 +188,7 @@ const client = {
   getDocuments,
   deleteDocument,
   getSubmissions,
+  getSubmission,
   createSubmission,
   deleteSubmission,
   updateSubmission,
